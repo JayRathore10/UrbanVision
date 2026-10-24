@@ -1,23 +1,26 @@
-# Product Requirements Document (PRD) - UrbanVision
+# Product Requirements Document (PRD)
+**Project Name:** UrbanVision
+**Version:** 1.0.0
+**Tech Stack:** MERN (MongoDB, Express, React.jsx, Node.js w/ TypeScript)
 
 ## 1. Core Problem Statement
-Municipal corporations struggle to proactively monitor civic infrastructure (roads, drainage, cleanliness). Physical inspections are time-consuming, resource-heavy, and reactive. Consequently, issues like potholes, scattered garbage, and blocked drains often go unaddressed until citizens complain, leading to degraded urban environments and higher long-term repair costs.
+Municipal corporations face inefficiencies in identifying and resolving civic issues such as potholes, illegal garbage dumping, and blocked drains. Physical patrols are expensive, reactive, and time-consuming. UrbanVision transforms existing municipal garbage collection vehicles into active mobile inspection units using edge AI, automating issue detection, mapping, and task delegation.
 
 ## 2. Target Personas
-*   **Municipal Officers (Supervisors/Admins):** Need a high-level overview of city health, automated anomaly detection, and a streamlined way to assign and track maintenance tasks without field visits.
-*   **Field Workers:** Need a simple, mobile-friendly interface to receive tasks, navigate to issue locations, and upload proof of resolution (photos).
-*   **Fleet Managers:** Need to track the routes and operational status of garbage collection vehicles serving as mobile inspection units.
+1. **Municipal Officers / Supervisors:** Use the web dashboard to get a bird's-eye view of city health, view automated reports, and delegate tasks.
+2. **Field Workers:** Use a mobile-friendly web app to view assigned tasks, navigate to locations, and upload photo verification of resolved issues.
+3. **Fleet Managers:** Monitor the status of edge AI cameras on garbage trucks to ensure maximum area coverage.
 
 ## 3. Functional Requirements
-*   **Edge AI Detection:** The system must process video feeds from three cameras (front, left, right) mounted on garbage trucks to identify: Potholes, scattered garbage, and blocked/overflowing drains.
-*   **Auto-Deduplication:** The backend must cluster and deduplicate repeated detections of the same issue from multiple vehicle passes using GPS coordinates and bounding box similarities.
-*   **Interactive GIS Map:** A map-based dashboard displaying issues as color-coded pins (Red=Alert/Pothole, Orange=Warning/Garbage) with clustering for high-density areas.
-*   **Task Assignment Workflow:** Officers can select an issue on the map, assign it to a specific worker/team, set priorities, and define deadlines.
-*   **Worker Resolution & Verification:** Field app allows workers to upload "after" photos with GPS metadata to prove task completion.
-*   **Analytics Dashboard:** Metrics on issue resolution time, hot-spot areas, and worker efficiency.
+* **AI Detection Ingestion:** System must receive and process automated alerts from truck-mounted Edge AI, including issue type, GPS coordinates, severity, and image snapshot.
+* **Auto-Deduplication (Spatial):** System must utilize MongoDB geospatial queries (`$near`) to prevent duplicate logging of the same pothole or garbage pile if multiple trucks pass the same location.
+* **Interactive GIS Map:** A map interface displaying color-coded issue pins (e.g., Red = Pothole, Orange = Garbage, Green = Resolved) using React Leaflet.
+* **Task Assignment Workflow:** Officers can select an issue on the map, assign a worker, and set a priority level.
+* **Worker Verification Loop:** Workers can upload timestamped, geolocated photos marking a task as "Resolved," which updates the central map in real-time.
+* **Analytics & Reporting:** Dashboard showing issue resolution times, area heatmaps, and worker performance metrics.
 
 ## 4. Non-Functional Requirements
-*   **Edge Computing Constraints:** AI models must be optimized (e.g., YOLOv8-nano/TensorRT) to run on low-power edge devices (like NVIDIA Jetson) mounted on vehicles.
-*   **Low Latency & Bandwidth:** The edge device should only transmit metadata (Issue Type, GPS, Timestamp) and a single frame/thumbnail to the cloud, rather than streaming continuous video.
-*   **Accessibility:** The web dashboard must comply with WCAG 2.1 AA standards for high contrast and keyboard navigability.
-*   **Performance:** The GIS map must smoothly render up to 10,000 concurrent data points without UI blocking (utilizing WebGL/Mapbox/Deck.gl).
+* **Tech Stack Boundary:** Frontend is strictly React.js (JavaScript/JSX) for rapid UI development. Backend is strictly Node.js with TypeScript for type-safe API contracts. Database is MongoDB (NoSQL) for flexible GeoJSON storage.
+* **Map Rendering Performance:** The GIS map must smoothly render up to 10,000 active points using clustering.
+* **Accessibility:** The dashboard must meet WCAG AA standards, featuring high-contrast modes (Dark/Light themes).
+* **Low Latency / Edge Resilience:** The API must handle burst traffic when trucks reconnect to cellular networks after passing through dead zones.

@@ -1,29 +1,29 @@
-# Checklist & Feature Tracker
+# UrbanVision Master Task List
 
-## 1. Project Setup
-- [ ] Initialize monorepo (Turborepo or similar) for frontend and backend.
-- [ ] Setup ESLint, Prettier, and Husky hooks.
-- [ ] Configure environment variables structure (`.env.example`).
+## Infrastructure & Backend Setup
+- [ ] Setup MongoDB Atlas cluster and acquire connection string.
+- [ ] Run `npm init -y` and `npm install -D typescript ts-node @types/node @types/express`.
+- [ ] Configure `tsconfig.json` (Target: ES2022, Module: CommonJS).
+- [ ] Create Mongoose schemas (Issue, Task, User) and apply `2dsphere` index on Issue `location`.
 
-## 2. UI & Theming
-- [ ] Implement CSS Variables for Light/Dark mode.
-- [ ] Configure `tailwind.config.js` with semantic colors (primary, success, warning, alert).
-- [ ] Build generic UI components: Pill Buttons, Soft Cards, Map Overlays.
+## API Development
+- [ ] Implement global error handler and async wrapper in Express.
+- [ ] Build `/auth/login` and JWT middleware.
+- [ ] Build `POST /api/issues` (Hardware Ingestion Route).
+- [ ] Implement spatial deduplication logic in Issue controller.
+- [ ] Build `GET /api/issues` (Map Population Route).
+- [ ] Build `PATCH /api/tasks/:id/resolve` (Worker resolution with Multer for image upload).
 
-## 3. Backend Development
-- [ ] Setup Prisma schema with PostGIS.
-- [ ] Create `/api/issues` endpoint (POST for edge devices, GET for dashboard).
-- [ ] Create `/api/tasks` endpoint (assignment and status updates).
-- [ ] Integrate AWS S3 / Cloudinary for image storage.
+## Frontend Setup (React.jsx + Tailwind)
+- [ ] Initialize Vite project: `npm create vite@latest frontend -- --template react`.
+- [ ] Setup Tailwind CSS, `postcss.config.js`, and `tailwind.config.js`.
+- [ ] Implement CSS Variables for Dark/Light mode in `index.css`.
+- [ ] Setup React Router (`/dashboard`, `/map`, `/worker`).
 
-## 4. Frontend (Dashboard)
-- [ ] Build Layout: Sidebar, Header, Theme Toggle.
-- [ ] Build Map View: Integrate Mapbox, plot GeoJSON data.
-- [ ] Build Issue List View: Filterable data table of current civic issues.
+## Frontend Features
+- [ ] Build Global Layout (Sidebar, Top Nav).
+- [ ] Integrate React Leaflet map.
+- [ ] Fetch and render MongoDB GeoJSON points on map.
+- [ ] Build Issue Details Panel.
 - [ ] Build Task Assignment Modal.
-
-## 5. Edge AI & Hardware
-- [ ] Setup Jetson Nano environment.
-- [ ] Write Python script for concurrent 3-camera capture.
-- [ ] Integrate YOLOv8 inference loop.
-- [ ] Write API client to transmit data over cellular network.
+- [ ] Build Mobile Worker view for image uploading.

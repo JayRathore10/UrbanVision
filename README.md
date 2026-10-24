@@ -1,50 +1,117 @@
-# 🏙️ UrbanVision
-
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![React](https://img.shields.io/badge/React-18.x-61DAFB.svg)
-![Tailwind](https://img.shields.io/badge/TailwindCSS-3.x-38B2AC.svg)
+# UrbanVision 🏙️
 
 **AI-Powered Smart Municipal Monitoring System**
 
-UrbanVision transforms standard municipal garbage collection vehicles into mobile civic monitoring units. By utilizing edge AI cameras, it automatically detects, maps, and reports civic issues like potholes, scattered garbage, and blocked drains, streamlining city maintenance.
+UrbanVision transforms existing municipal garbage collection vehicles into active mobile inspection units. Using edge AI, the system automatically detects, maps, and reports civic issues like potholes, scattered garbage, and blocked drains without requiring manual physical patrols.
 
-## ✨ Key Features
-*   **Automated Edge Detection:** Real-time AI processing on mobile units.
-*   **GIS Command Center:** Interactive, high-performance map tracking issues globally.
-*   **Smart Deduplication:** Algorithm to prevent duplicate reports of the same issue.
-*   **End-to-End Workflow:** Task assignment dashboard for officers and a verification PWA for field workers.
-*   **Dual Theme UI:** Command-center dark mode and modern SaaS light mode.
+![Stack](https://img.shields.io/badge/Stack-MERN-blue)
+![Frontend](https://img.shields.io/badge/Frontend-React.jsx-61DAFB)
+![Backend](https://img.shields.io/badge/Backend-Node.js%20%2B%20TypeScript-3178C6)
+![Database](https://img.shields.io/badge/Database-MongoDB-47A248)
 
-## 🚀 Quick Setup (Local Development)
+---
+
+## 🚀 Key Features
+
+- **Automated AI Detection:** Ingests road conditions from edge AI cameras, detecting potholes, garbage, and drainage issues.
+- **Spatial Deduplication:** Prevents duplicate reports of the same issue using MongoDB `$near` geospatial queries.
+- **Interactive GIS Dashboard:** Real-time, color-coded React Leaflet map displaying active, assigned, and resolved issues.
+- **Task Dispatching:** Command center interface to assign verified issues directly to field workers.
+- **Closed-Loop Verification:** Mobile-friendly worker interface for uploading timestamped, geolocated photo proof of resolved tasks.
+- **Dual Theme UI:** Soft SaaS Light Mode and high-contrast Command Center Dark Mode.
+
+---
+
+## 🏗️ System Architecture
+
+- **Frontend:** React.js (`.jsx`), Tailwind CSS, React Leaflet.
+- **Backend:** Node.js, Express.js, TypeScript (`.ts`).
+- **Database:** MongoDB (Atlas or local) with Mongoose ODM and GeoJSON support.
+- **Edge Units (Simulated/Hardware):** Python (OpenCV/TensorFlow) passing JSON payloads to the API.
+
+---
+
+## 🛠️ Local Installation & Setup
 
 ### Prerequisites
-*   Node.js (v18+)
-*   PostgreSQL + PostGIS extension
-*   Yarn or npm
 
-### Installation
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-org/urbanvision.git
-    cd urbanvision
-    ```
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-3.  **Environment Variables:**
-    Copy `.env.example` to `.env` and fill in your Database URL and Mapbox Token.
-    ```bash
-    cp .env.example .env
-    ```
-4.  **Database Migration:**
-    ```bash
-    npx prisma db push
-    ```
-5.  **Run Development Server:**
-    ```bash
-    npm run dev
-    ```
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [MongoDB](https://www.mongodb.com/) (local instance or MongoDB Atlas account)
+- Git
 
-## 🤝 Contributing
-Please read the `AGENTS.md` and `ARCHITECTURE.md` files for coding guidelines and system design before submitting a Pull Request.
+### 1. Clone the Repository
+
+Replace the example URL with your repository URL.
+
+```bash
+git clone https://github.com/your-username/urbanvision.git
+cd urbanvision
+```
+
+### 2. Backend Setup
+
+Navigate to the backend directory and install dependencies.
+
+```bash
+cd backend
+npm install
+```
+
+**Environment Variables (`backend/.env`):**
+
+Create a `.env` file in the `/backend` directory and add:
+
+```env
+PORT=5000
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/urbanvision
+JWT_SECRET=your_super_secret_jwt_key
+```
+
+Keep `.env` private. Do not commit database credentials or JWT secrets to version control.
+
+**Run the Backend Server:**
+
+```bash
+npm run dev
+```
+
+This should run the development server with hot reloading, using a configured tool such as `ts-node-dev` or `tsx`.
+
+### 3. Frontend Setup
+
+Open a new terminal window and navigate to the frontend directory.
+
+```bash
+cd frontend
+npm install
+```
+
+**Environment Variables (`frontend/.env`):**
+
+Create a `.env` file in the `/frontend` directory and add:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
+
+**Run the Frontend Server:**
+
+```bash
+npm run dev
+```
+
+---
+
+## 🧑‍💻 Development Guidelines
+
+If you are contributing or using AI agents to generate code for this repository, strictly adhere to the following stack boundaries:
+
+1. **Frontend:** Write in JavaScript/JSX (`.jsx`) only. Do **not** use TypeScript for the React UI. Use Tailwind CSS for all styling.
+2. **Backend:** Write in TypeScript (`.ts`). Use explicit types and interfaces for API requests, responses, and Mongoose schemas.
+3. **Database:** Use Mongoose ODM. Do not use SQL or Prisma. Utilize MongoDB GeoJSON Points for all location-based data.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
