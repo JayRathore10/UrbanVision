@@ -54,8 +54,9 @@ export const api = {
   auth: {
     login: async (email, password) => {
       const res = await apiClient.post('/auth/login', { email, password });
-      if (res.data?.data?.accessToken) {
-        setAuthToken(res.data.data.accessToken);
+      const token = res.data?.data?.token || res.data?.data?.accessToken;
+      if (token) {
+        setAuthToken(token);
         if (res.data.data.user) {
           localStorage.setItem('currentUser', JSON.stringify(res.data.data.user));
         }
@@ -64,8 +65,9 @@ export const api = {
     },
     register: async (data) => {
       const res = await apiClient.post('/auth/register', data);
-      if (res.data?.data?.accessToken) {
-        setAuthToken(res.data.data.accessToken);
+      const token = res.data?.data?.token || res.data?.data?.accessToken;
+      if (token) {
+        setAuthToken(token);
         if (res.data.data.user) {
           localStorage.setItem('currentUser', JSON.stringify(res.data.data.user));
         }

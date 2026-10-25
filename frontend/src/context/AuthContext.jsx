@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // Auto-authenticate on initial boot with default Supervisor account if token is missing
+  // Validate existing stored token on app boot
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('token');
@@ -24,30 +24,31 @@ export function AuthProvider({ children }) {
           if (res?.data?.user) {
             setUser(res.data.user);
             localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+          } else {
+            throw new Error('Invalid user payload');
           }
         } catch (err) {
-          console.warn('[UrbanVision] Stored token invalid or expired. Auto-logging in with default supervisor...');
-          await autoLoginSupervisor();
+          console.warn('[UrbanVision] Stored session expired or invalid. Clearing session.');
+          setAuthToken(null);
+          localStorage.removeItem('currentUser');
+          setUser(null);
         }
       } else {
-        await autoLoginSupervisor();
+        // Default to Admin session on initial first-time load for instant exploration
+        try {
+          const res = await api.auth.login('admin@urbanvision.gov.in', 'Password123');
+          if (res?.data?.user) {
+            setUser(res.data.user);
+          }
+        } catch (e) {
+          console.warn('[UrbanVision] Default first-run login skipped:', e.message);
+        }
       }
       setLoading(false);
     };
 
     initAuth();
   }, []);
-
-  const autoLoginSupervisor = async () => {
-    try {
-      const res = await api.auth.login('rajesh@urbanvision.gov.in', 'Password123');
-      if (res?.data?.user) {
-        setUser(res.data.user);
-      }
-    } catch (err) {
-      console.warn('[UrbanVision] Default auto-login skipped:', err.message);
-    }
-  };
 
   const login = async (email, password) => {
     const res = await api.auth.login(email, password);
@@ -57,9 +58,24 @@ export function AuthProvider({ children }) {
     return res;
   };
 
+  const register = async (data) => {
+    const res = await api.auth.register(data);
+    if (res?.data?.user) {
+      setUser(res.data.user);
+    }
+    return res;
+  };
+
   const logout = async () => {
-    await api.auth.logout();
-    setUser(null);
+    try {
+      await api.auth.logout();
+    } catch (e) {
+      // Ignore network errors on logout
+    } finally {
+      setAuthToken(null);
+      localStorage.removeItem('currentUser');
+      setUser(null);
+    }
   };
 
   const switchAccount = async (email, password = 'Password123') => {
@@ -72,10 +88,13 @@ export function AuthProvider({ children }) {
         user,
         loading,
         login,
+        register,
         logout,
         switchAccount,
-        isSupervisor: user?.role === 'Supervisor',
+        isAdmin: user?.role === 'Admin',
+        isSupervisor: user?.role === 'Supervisor' || user?.role === 'Admin',
         isWorker: user?.role === 'Worker',
+        isAuthenticated: Boolean(user),
       }}
     >
       {children}

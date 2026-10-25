@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import GisMap from './pages/GisMap';
 import WorkerView from './pages/WorkerView';
 import Supervisors from './pages/Supervisors';
+import AuthPage from './pages/AuthPage';
 
 export default function App() {
   return (
@@ -20,6 +21,8 @@ export default function App() {
           <Route path="/supervisors" element={<Supervisors />} />
           <Route path="/supervisors/:id" element={<Supervisors />} />
           <Route path="/worker" element={<WorkerView />} />
+          <Route path="/login" element={<AuthPage defaultTab="login" />} />
+          <Route path="/register" element={<AuthPage defaultTab="register" />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

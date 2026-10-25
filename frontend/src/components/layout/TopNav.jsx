@@ -54,7 +54,7 @@ export default function TopNav() {
     { label: 'GIS Map', to: '/map', icon: MapPin },
     { label: 'Supervisors', to: '/supervisors', icon: ShieldCheck },
     { label: 'Worker App', to: '/worker', icon: HardHat },
-    { label: 'Supervisor', to: '/supervisor', icon: ShieldCheck },
+    { label: 'Sign In / Register', to: '/login', icon: User },
   ];
 
   const themeOptions = [
@@ -64,12 +64,9 @@ export default function TopNav() {
   ];
 
   const presetAccounts = [
-    { name: 'Rajesh Kumar', email: 'rajesh@urbanvision.gov.in', role: 'Supervisor', area: 'Zone 1 - Rajwada' },
-    { name: 'Priya Sharma', email: 'priya@urbanvision.gov.in', role: 'Supervisor', area: 'Zone 2 - Vijay Nagar' },
-    { name: 'Amit Verma', email: 'amit@urbanvision.gov.in', role: 'Worker', area: 'Zone 1 - Rajwada' },
-    { name: 'Sunita Patel', email: 'sunita@urbanvision.gov.in', role: 'Worker', area: 'Zone 1 - Rajwada' },
-    { name: 'Rahul Sharma', email: 'rahul@urbanvision.gov.in', role: 'Worker', area: 'Zone 2 - Vijay Nagar' },
-    { name: 'Vikram Singh', email: 'vikram@urbanvision.gov.in', role: 'Worker', area: 'Zone 2 - Vijay Nagar' },
+    { name: 'Vikramaditya Rao', email: 'admin@urbanvision.gov.in', role: 'Admin', area: 'Municipal Corporation HQ' },
+    { name: 'Rajesh Kumar', email: 'supervisor@urbanvision.gov.in', role: 'Supervisor', area: 'Zone 1 - Rajwada' },
+    { name: 'Amit Patel', email: 'worker@urbanvision.gov.in', role: 'Worker', area: 'Zone 1 - Pavement Crew' },
   ];
 
   const CurrentThemeIcon = 
@@ -143,75 +140,107 @@ export default function TopNav() {
             </button>
 
             {/* Account Switcher Dropdown */}
-            <div className="relative" ref={accountRef}>
-              <button
-                onClick={() => setAccountDropdownOpen((prev) => !prev)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-surface hover:bg-surface-hover text-content rounded-pill border border-border shadow-card transition-colors duration-150"
-                aria-label="Account Switcher"
+            {!user ? (
+              <NavLink
+                to="/login"
+                className="flex items-center gap-1.5 px-4 py-2 bg-accent text-white text-xs font-semibold rounded-pill shadow-sm hover:opacity-90 transition-all"
               >
-                <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center font-bold text-[10px]">
-                  {user?.name ? user.name[0] : 'U'}
-                </div>
-                <div className="text-left hidden lg:block">
-                  <p className="text-xs font-semibold text-content leading-none">
-                    {user?.name || 'Guest User'}
-                  </p>
-                  <p className="text-[10px] text-content-muted leading-tight mt-0.5">
-                    {user?.role || 'Municipal User'}
-                  </p>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-content-muted" />
-              </button>
+                <User className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </NavLink>
+            ) : (
+              <div className="relative" ref={accountRef}>
+                <button
+                  onClick={() => setAccountDropdownOpen((prev) => !prev)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-surface hover:bg-surface-hover text-content rounded-pill border border-border shadow-card transition-colors duration-150"
+                  aria-label="Account Switcher"
+                >
+                  <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center font-bold text-[10px]">
+                    {user?.name ? user.name[0] : 'U'}
+                  </div>
+                  <div className="text-left hidden lg:block">
+                    <p className="text-xs font-semibold text-content leading-none">
+                      {user?.name || 'Guest User'}
+                    </p>
+                    <p className="text-[10px] text-content-muted leading-tight mt-0.5">
+                      {user?.role || 'Municipal User'}
+                    </p>
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-content-muted" />
+                </button>
 
-              {accountDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-surface border border-border rounded-card shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-4 py-2 border-b border-border/50">
-                    <p className="text-[11px] font-semibold text-content-subtle uppercase tracking-wider">
-                      Current Active Account
-                    </p>
-                    <p className="text-xs font-semibold text-content mt-1">
-                      {user?.name} ({user?.role})
-                    </p>
-                    <p className="text-[11px] text-content-muted">{user?.email}</p>
-                    {user?.assignedArea && (
-                      <p className="text-[10px] text-accent mt-0.5 font-medium">
-                        📍 {user.assignedArea}
+                {accountDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-72 bg-surface border border-border rounded-card shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-4 py-2 border-b border-border/50">
+                      <p className="text-[11px] font-semibold text-content-subtle uppercase tracking-wider">
+                        Current Active Account
                       </p>
-                    )}
-                  </div>
+                      <p className="text-xs font-semibold text-content mt-1">
+                        {user?.name} ({user?.role})
+                      </p>
+                      <p className="text-[11px] text-content-muted">{user?.email}</p>
+                      {user?.assignedArea && (
+                        <p className="text-[10px] text-accent mt-0.5 font-medium">
+                          📍 {user.assignedArea}
+                        </p>
+                      )}
+                    </div>
 
-                  <div className="px-4 py-1.5 text-[10px] font-semibold text-content-subtle uppercase tracking-wider">
-                    Switch Test Account
-                  </div>
+                    <div className="px-4 py-1.5 text-[10px] font-semibold text-content-subtle uppercase tracking-wider">
+                      Switch Test Account
+                    </div>
 
-                  <div className="max-h-60 overflow-y-auto divide-y divide-border/30">
-                    {presetAccounts.map((acc) => {
-                      const isCurrent = user?.email === acc.email;
-                      return (
-                        <button
-                          key={acc.email}
-                          onClick={async () => {
-                            await switchAccount(acc.email, 'Password123');
-                            setAccountDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 hover:bg-surface-hover transition-colors flex items-center justify-between text-xs ${
-                            isCurrent ? 'bg-surface-muted font-semibold text-accent' : 'text-content'
-                          }`}
-                        >
-                          <div>
-                            <p className="leading-tight font-medium">{acc.name}</p>
-                            <p className="text-[10px] text-content-muted leading-tight">
-                              {acc.role} • {acc.area}
-                            </p>
-                          </div>
-                          {isCurrent && <Check className="w-3.5 h-3.5 text-accent flex-shrink-0" />}
-                        </button>
-                      );
-                    })}
+                    <div className="max-h-60 overflow-y-auto divide-y divide-border/30">
+                      {presetAccounts.map((acc) => {
+                        const isCurrent = user?.email === acc.email;
+                        return (
+                          <button
+                            key={acc.email}
+                            onClick={async () => {
+                              await switchAccount(acc.email, 'Password123');
+                              setAccountDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2 hover:bg-surface-hover transition-colors flex items-center justify-between text-xs ${
+                              isCurrent ? 'bg-surface-muted font-semibold text-accent' : 'text-content'
+                            }`}
+                          >
+                            <div>
+                              <p className="leading-tight font-medium">{acc.name}</p>
+                              <p className="text-[10px] text-content-muted leading-tight">
+                                {acc.role} • {acc.area}
+                              </p>
+                            </div>
+                            {isCurrent && <Check className="w-3.5 h-3.5 text-accent flex-shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Auth Actions: Login Page & Log Out */}
+                    <div className="pt-2 mt-1 border-t border-border/50 px-2 space-y-1">
+                      <NavLink
+                        to="/login"
+                        onClick={() => setAccountDropdownOpen(false)}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-content hover:bg-surface-hover rounded-inner font-medium transition-colors"
+                      >
+                        <User className="w-3.5 h-3.5 text-accent" />
+                        <span>Sign In with Credentials</span>
+                      </NavLink>
+                      <button
+                        onClick={async () => {
+                          await logout();
+                          setAccountDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-danger hover:bg-danger-soft rounded-inner font-medium transition-colors"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>Log Out</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Theme Dropdown Toggle */}
             <div className="relative" ref={themeRef}>
