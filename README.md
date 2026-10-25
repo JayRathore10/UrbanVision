@@ -2,6 +2,8 @@
 
 **AI-Powered Smart Municipal Monitoring System**
 
+🚀 **Live Website:** [https://urbanvision-frontend.pie.host/login](https://urbanvision-frontend.pie.host/login)
+
 UrbanVision transforms existing municipal garbage collection vehicles into active mobile inspection units. Using edge AI, the system automatically detects, maps, and reports civic issues like potholes, scattered garbage, and blocked drains without requiring manual physical patrols.
 
 ![Stack](https://img.shields.io/badge/Stack-MERN-blue)
