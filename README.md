@@ -1,4 +1,4 @@
-****# UrbanVision 🏙️
+# UrbanVision 🏙️
 
 **AI-Powered Smart Municipal Monitoring System**
 
