@@ -14,22 +14,35 @@ import {
   Menu, 
   X,
   Radio,
-  Sparkles
+  Sparkles,
+  ShieldCheck,
+  User,
+  LogOut,
+  Users
 } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../context/AuthContext';
 
 export default function TopNav() {
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { user, switchAccount, logout } = useAuth();
+
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSimModal, setShowSimModal] = useState(false);
-  const themeRef = useRef(null);
 
-  // Close dropdown on click outside
+  const themeRef = useRef(null);
+  const accountRef = useRef(null);
+
+  // Close dropdowns on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (themeRef.current && !themeRef.current.contains(event.target)) {
         setThemeDropdownOpen(false);
+      }
+      if (accountRef.current && !accountRef.current.contains(event.target)) {
+        setAccountDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -39,6 +52,7 @@ export default function TopNav() {
   const navItems = [
     { label: 'Dashboard', to: '/', icon: LayoutDashboard },
     { label: 'GIS Map', to: '/map', icon: MapPin },
+    { label: 'Supervisors', to: '/supervisors', icon: ShieldCheck },
     { label: 'Worker App', to: '/worker', icon: HardHat },
   ];
 
@@ -46,6 +60,15 @@ export default function TopNav() {
     { key: 'light', label: 'Light', icon: Sun },
     { key: 'dark', label: 'Dark', icon: Moon },
     { key: 'system', label: 'System', icon: Laptop },
+  ];
+
+  const presetAccounts = [
+    { name: 'Rajesh Kumar', email: 'rajesh@urbanvision.gov.in', role: 'Supervisor', area: 'Zone 1 - Rajwada' },
+    { name: 'Priya Sharma', email: 'priya@urbanvision.gov.in', role: 'Supervisor', area: 'Zone 2 - Vijay Nagar' },
+    { name: 'Amit Verma', email: 'amit@urbanvision.gov.in', role: 'Worker', area: 'Zone 1 - Rajwada' },
+    { name: 'Sunita Patel', email: 'sunita@urbanvision.gov.in', role: 'Worker', area: 'Zone 1 - Rajwada' },
+    { name: 'Rahul Sharma', email: 'rahul@urbanvision.gov.in', role: 'Worker', area: 'Zone 2 - Vijay Nagar' },
+    { name: 'Vikram Singh', email: 'vikram@urbanvision.gov.in', role: 'Worker', area: 'Zone 2 - Vijay Nagar' },
   ];
 
   const CurrentThemeIcon = 
@@ -86,7 +109,7 @@ export default function TopNav() {
                   to={item.to}
                   end={item.to === '/'}
                   className={({ isActive }) =>
-                    `flex items-center gap-2 px-5 py-2 text-xs md:text-sm font-medium rounded-pill transition-all duration-200 ${
+                    `flex items-center gap-2 px-4 lg:px-5 py-2 text-xs md:text-sm font-medium rounded-pill transition-all duration-200 ${
                       isActive
                         ? 'bg-surface text-content shadow-card'
                         : 'text-content-muted hover:text-content hover:bg-surface/50'
@@ -100,12 +123,12 @@ export default function TopNav() {
             })}
           </nav>
 
-          {/* Right: Actions (Theme Toggle & Simulator Pill) */}
+          {/* Right: Actions (Simulator, Account Switcher & Theme Toggle) */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Edge AI Simulator Trigger Button */}
             <button
               onClick={() => setShowSimModal(true)}
-              className="relative flex items-center gap-2 px-4 py-2 bg-inverse text-inverse-text text-xs sm:text-sm font-medium rounded-pill shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 group"
+              className="relative hidden sm:flex items-center gap-2 px-3.5 py-2 bg-inverse text-inverse-text text-xs sm:text-sm font-medium rounded-pill shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 group"
               title="Interactive Edge AI Truck Simulator"
             >
               <span className="relative flex h-2 w-2">
@@ -113,12 +136,82 @@ export default function TopNav() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
               </span>
               <Radio className="w-3.5 h-3.5 text-accent group-hover:rotate-12 transition-transform" />
-              <span className="hidden sm:inline">Edge AI Simulator</span>
-              <span className="sm:hidden">Sim</span>
-              <span className="px-1.5 py-0.5 text-[10px] bg-accent/20 text-accent rounded-full uppercase tracking-widest font-semibold ml-1">
-                Demo
+              <span>Simulate</span>
+              <span className="px-1.5 py-0.5 text-[10px] bg-accent/20 text-accent rounded-full uppercase tracking-widest font-semibold">
+                Truck
               </span>
             </button>
+
+            {/* Account Switcher Dropdown */}
+            <div className="relative" ref={accountRef}>
+              <button
+                onClick={() => setAccountDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-surface hover:bg-surface-hover text-content rounded-pill border border-border shadow-card transition-colors duration-150"
+                aria-label="Account Switcher"
+              >
+                <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center font-bold text-[10px]">
+                  {user?.name ? user.name[0] : 'U'}
+                </div>
+                <div className="text-left hidden lg:block">
+                  <p className="text-xs font-semibold text-content leading-none">
+                    {user?.name || 'Guest User'}
+                  </p>
+                  <p className="text-[10px] text-content-muted leading-tight mt-0.5">
+                    {user?.role || 'Municipal User'}
+                  </p>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-content-muted" />
+              </button>
+
+              {accountDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-72 bg-surface border border-border rounded-card shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-4 py-2 border-b border-border/50">
+                    <p className="text-[11px] font-semibold text-content-subtle uppercase tracking-wider">
+                      Current Active Account
+                    </p>
+                    <p className="text-xs font-semibold text-content mt-1">
+                      {user?.name} ({user?.role})
+                    </p>
+                    <p className="text-[11px] text-content-muted">{user?.email}</p>
+                    {user?.assignedArea && (
+                      <p className="text-[10px] text-accent mt-0.5 font-medium">
+                        📍 {user.assignedArea}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="px-4 py-1.5 text-[10px] font-semibold text-content-subtle uppercase tracking-wider">
+                    Switch Test Account
+                  </div>
+
+                  <div className="max-h-60 overflow-y-auto divide-y divide-border/30">
+                    {presetAccounts.map((acc) => {
+                      const isCurrent = user?.email === acc.email;
+                      return (
+                        <button
+                          key={acc.email}
+                          onClick={async () => {
+                            await switchAccount(acc.email, 'Password123');
+                            setAccountDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 hover:bg-surface-hover transition-colors flex items-center justify-between text-xs ${
+                            isCurrent ? 'bg-surface-muted font-semibold text-accent' : 'text-content'
+                          }`}
+                        >
+                          <div>
+                            <p className="leading-tight font-medium">{acc.name}</p>
+                            <p className="text-[10px] text-content-muted leading-tight">
+                              {acc.role} • {acc.area}
+                            </p>
+                          </div>
+                          {isCurrent && <Check className="w-3.5 h-3.5 text-accent flex-shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Theme Dropdown Toggle */}
             <div className="relative" ref={themeRef}>
@@ -126,13 +219,8 @@ export default function TopNav() {
                 onClick={() => setThemeDropdownOpen((prev) => !prev)}
                 className="flex items-center gap-1.5 px-3 py-2 bg-surface hover:bg-surface-hover text-content rounded-pill border border-border shadow-card transition-colors duration-150"
                 aria-label="Toggle theme mode"
-                aria-haspopup="true"
-                aria-expanded={themeDropdownOpen}
               >
                 <CurrentThemeIcon className="w-4 h-4 text-accent" />
-                <span className="text-xs font-medium capitalize hidden lg:inline text-content-muted">
-                  {theme}
-                </span>
                 <ChevronDown className="w-3.5 h-3.5 text-content-muted" />
               </button>
 
@@ -208,7 +296,7 @@ export default function TopNav() {
         )}
       </header>
 
-      {/* Simulator Modal Placeholder (Phase 4 Trigger) */}
+      {/* Simulator Modal */}
       {showSimModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-surface border border-border rounded-card p-6 max-w-md w-full shadow-card relative">
@@ -224,22 +312,22 @@ export default function TopNav() {
                 <Cpu className="w-5 h-5 text-accent" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-content">Edge AI Simulator</h3>
-                <p className="text-xs text-content-muted">Municipal Garbage Truck Dashcam Unit</p>
+                <h3 className="text-base font-semibold text-content">Edge AI Dashcam Simulator</h3>
+                <p className="text-xs text-content-muted">Municipal Inspection Vehicle Unit TRK-IND-01</p>
               </div>
             </div>
 
             <div className="bg-surface-muted rounded-inner p-4 mb-4 border border-border/50 text-xs text-content-muted space-y-2">
               <p className="flex items-center gap-1.5 text-content font-medium">
                 <Sparkles className="w-3.5 h-3.5 text-accent" />
-                Live Demo Control Center
+                Live Camera Broadcast Ready
               </p>
               <p>
-                In <strong>Phase 4</strong>, this modal powers live edge camera broadcasts:
+                Connected to backend Gemini AI vision pipeline & MongoDB geospatial deduplication engine.
               </p>
               <ul className="list-disc list-inside space-y-1 text-content-subtle pl-1">
-                <li>Broadcast new pothole / garbage detections to the GIS map.</li>
-                <li>Simulate 2nd truck passing within 5m to showcase MongoDB <code className="text-accent font-mono">$near</code> deduplication.</li>
+                <li>3-camera synchronized stream (Front, Left, Right).</li>
+                <li>Deduplicates duplicate reports within 15 meters using MongoDB <code>$near</code> geospatial queries.</li>
               </ul>
             </div>
 
@@ -248,7 +336,7 @@ export default function TopNav() {
                 onClick={() => setShowSimModal(false)}
                 className="px-5 py-2 bg-inverse text-inverse-text text-xs font-medium rounded-pill hover:opacity-90 transition-opacity"
               >
-                Close Simulator Preview
+                Close Simulator
               </button>
             </div>
           </div>

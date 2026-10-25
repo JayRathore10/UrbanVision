@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" NODE_ENV=test jest --runInBand --forceExit --detectOpenHandles",
     "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" NODE_ENV=test jest --runInBand --forceExit --detectOpenHandles --coverage",
-    "seed:supervisor": "node src/scripts/seedSupervisor.js"
+    "seed:supervisor": "node src/scripts/seedSupervisor.js",
+    "seed": "node src/scripts/seedData.js"
   },
   "keywords": [
     "urbanvision",

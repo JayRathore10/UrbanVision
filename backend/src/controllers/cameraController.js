@@ -71,23 +71,38 @@ exports.ingestVideo = asyncHandler(async (req, res) => {
 
   const { vehicleId, cameraId, cameraDirection, inspectionId } = req.body;
 
+  const videoFilename = req.file.filename;
+  const videoUrl = `/api/evidence/videos/${videoFilename}`;
+  const videoPath = req.file.path;
+  const fileSize = req.file.size;
+
   // Create/update inspection
   const inspection = await Inspection.findOneAndUpdate(
     { inspectionId: inspectionId || `UV-INSP-VIDEO-${Date.now()}` },
-    { vehicleId, processingStatus: 'Pending', $addToSet: { cameraIds: cameraId } },
+    {
+      vehicleId: vehicleId || 'VH-001',
+      supervisorId: req.user._id,
+      videoUrl,
+      videoPath,
+      videoFilename,
+      fileSize,
+      cameraDirection: cameraDirection || 'Front',
+      processingStatus: 'Completed',
+      $addToSet: { cameraIds: cameraId || 'CAM-F-001' },
+      startedAt: new Date(),
+    },
     { upsert: true, new: true }
   );
 
-  // Video frame extraction would be done asynchronously
-  // For now, return the job ID for status polling
-  res.status(202).json({
+  res.status(201).json({
     success: true,
-    message: 'Video uploaded. Frame extraction will be processed asynchronously.',
+    message: 'Video uploaded and linked to inspection session.',
     data: {
       inspectionId: inspection.inspectionId,
-      videoFile: req.file.filename,
-      status: 'Pending',
-      note: 'Use GET /api/cameras/inspection/:inspectionId for processing status',
+      videoFile: videoFilename,
+      videoUrl,
+      status: inspection.processingStatus,
+      note: 'Video playback stream available at videoUrl',
     },
   });
 });

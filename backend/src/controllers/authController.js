@@ -14,15 +14,18 @@ const generateTokens = (userId) => {
 };
 
 exports.register = asyncHandler(async (req, res) => {
-  const { name, email, password, phone, employeeId } = req.body;
+  const { name, email, password, phone, employeeId, role, assignedArea, department } = req.body;
 
   const existing = await User.findOne({ email });
   if (existing) throw ApiError.conflict('Email already registered');
 
-  // All public registrations are Workers only
-  const userData = { name, email, passwordHash: password, role: 'Worker' };
+  const userRole = role === 'Supervisor' ? 'Supervisor' : 'Worker';
+  const userData = { name, email, passwordHash: password, role: userRole };
   if (phone) userData.phone = phone;
   if (employeeId) userData.employeeId = employeeId;
+  if (assignedArea) userData.assignedArea = assignedArea;
+  if (department) userData.department = department;
+
   const user = await User.create(userData);
 
   const tokens = generateTokens(user._id);

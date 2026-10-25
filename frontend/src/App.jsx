@@ -4,6 +4,7 @@ import TopNav from './components/layout/TopNav';
 import Dashboard from './pages/Dashboard';
 import GisMap from './pages/GisMap';
 import WorkerView from './pages/WorkerView';
+import Supervisors from './pages/Supervisors';
 
 export default function App() {
   return (
@@ -16,6 +17,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/map" element={<GisMap />} />
+          <Route path="/supervisors" element={<Supervisors />} />
+          <Route path="/supervisors/:id" element={<Supervisors />} />
           <Route path="/worker" element={<WorkerView />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

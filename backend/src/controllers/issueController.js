@@ -72,7 +72,11 @@ exports.getIssueMap = asyncHandler(async (req, res) => {
     },
   }));
 
-  res.json({ type: 'FeatureCollection', features });
+  res.json({
+    type: 'FeatureCollection',
+    features,
+    data: { issues },
+  });
 });
 
 exports.getIssueById = asyncHandler(async (req, res) => {
