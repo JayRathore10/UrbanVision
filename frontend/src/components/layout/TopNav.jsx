@@ -1,31 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  Eye, 
-  LayoutDashboard, 
-  MapPin, 
-  HardHat, 
-  Sun, 
-  Moon, 
-  Laptop, 
-  Cpu, 
-  ChevronDown, 
-  Check, 
-  Menu, 
-  X,
-  Radio,
-  Sparkles
+import {
+  Eye, LayoutDashboard, MapPin, HardHat, ShieldCheck, Sun, Moon, Laptop,
+  Cpu, ChevronDown, Check, Menu, X, Radio, LogIn, LogOut, User
 } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../context/AuthContext';
+import EdgeSimulatorModal from '../EdgeSimulatorModal';
+import AuthModal from '../auth/AuthModal';
 
 export default function TopNav() {
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { user, isAuthenticated, logout } = useAuth();
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSimModal, setShowSimModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const themeRef = useRef(null);
 
-  // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (themeRef.current && !themeRef.current.contains(event.target)) {
@@ -40,6 +32,7 @@ export default function TopNav() {
     { label: 'Dashboard', to: '/', icon: LayoutDashboard },
     { label: 'GIS Map', to: '/map', icon: MapPin },
     { label: 'Worker App', to: '/worker', icon: HardHat },
+    { label: 'Supervisor', to: '/supervisor', icon: ShieldCheck },
   ];
 
   const themeOptions = [
@@ -48,14 +41,13 @@ export default function TopNav() {
     { key: 'system', label: 'System', icon: Laptop },
   ];
 
-  const CurrentThemeIcon = 
+  const CurrentThemeIcon =
     theme === 'system' ? Laptop : resolvedTheme === 'dark' ? Moon : Sun;
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-bg/80 border-b border-border transition-colors duration-200">
+      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-bg/85 border-b border-border transition-colors duration-200">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-          
           {/* Left: Logo Pill */}
           <div className="flex items-center gap-3">
             <NavLink
@@ -86,7 +78,7 @@ export default function TopNav() {
                   to={item.to}
                   end={item.to === '/'}
                   className={({ isActive }) =>
-                    `flex items-center gap-2 px-5 py-2 text-xs md:text-sm font-medium rounded-pill transition-all duration-200 ${
+                    `flex items-center gap-2 px-4 py-2 text-xs md:text-sm font-medium rounded-pill transition-all duration-200 ${
                       isActive
                         ? 'bg-surface text-content shadow-card'
                         : 'text-content-muted hover:text-content hover:bg-surface/50'
@@ -100,12 +92,12 @@ export default function TopNav() {
             })}
           </nav>
 
-          {/* Right: Actions (Theme Toggle & Simulator Pill) */}
+          {/* Right: Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Edge AI Simulator Trigger Button */}
             <button
               onClick={() => setShowSimModal(true)}
-              className="relative flex items-center gap-2 px-4 py-2 bg-inverse text-inverse-text text-xs sm:text-sm font-medium rounded-pill shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 group"
+              className="relative flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-inverse text-inverse-text text-xs sm:text-sm font-medium rounded-pill shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 group"
               title="Interactive Edge AI Truck Simulator"
             >
               <span className="relative flex h-2 w-2">
@@ -120,14 +112,33 @@ export default function TopNav() {
               </span>
             </button>
 
+            {/* Auth Button */}
+            {isAuthenticated ? (
+              <button
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-2 bg-surface text-content text-xs font-medium rounded-pill border border-border hover:bg-surface-hover shadow-card transition-colors"
+                title={`Logged in as ${user?.name || user?.email || 'User'}`}
+              >
+                <User className="w-3.5 h-3.5 text-accent" />
+                <span className="hidden lg:inline">{user?.name?.split(' ')[0] || 'User'}</span>
+                <LogOut className="w-3 h-3 text-content-muted" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="flex items-center gap-1.5 px-3 py-2 bg-surface text-content text-xs font-medium rounded-pill border border-border hover:bg-surface-hover shadow-card transition-colors"
+              >
+                <LogIn className="w-3.5 h-3.5 text-accent" />
+                <span className="hidden sm:inline">Sign In</span>
+              </button>
+            )}
+
             {/* Theme Dropdown Toggle */}
             <div className="relative" ref={themeRef}>
               <button
                 onClick={() => setThemeDropdownOpen((prev) => !prev)}
                 className="flex items-center gap-1.5 px-3 py-2 bg-surface hover:bg-surface-hover text-content rounded-pill border border-border shadow-card transition-colors duration-150"
                 aria-label="Toggle theme mode"
-                aria-haspopup="true"
-                aria-expanded={themeDropdownOpen}
               >
                 <CurrentThemeIcon className="w-4 h-4 text-accent" />
                 <span className="text-xs font-medium capitalize hidden lg:inline text-content-muted">
@@ -208,52 +219,11 @@ export default function TopNav() {
         )}
       </header>
 
-      {/* Simulator Modal Placeholder (Phase 4 Trigger) */}
-      {showSimModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface border border-border rounded-card p-6 max-w-md w-full shadow-card relative">
-            <button
-              onClick={() => setShowSimModal(false)}
-              className="absolute top-4 right-4 p-1.5 text-content-muted hover:text-content rounded-full hover:bg-surface-muted transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+      {/* Edge Simulator Modal */}
+      <EdgeSimulatorModal open={showSimModal} onClose={() => setShowSimModal(false)} />
 
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-inner bg-accent-soft flex items-center justify-center">
-                <Cpu className="w-5 h-5 text-accent" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-content">Edge AI Simulator</h3>
-                <p className="text-xs text-content-muted">Municipal Garbage Truck Dashcam Unit</p>
-              </div>
-            </div>
-
-            <div className="bg-surface-muted rounded-inner p-4 mb-4 border border-border/50 text-xs text-content-muted space-y-2">
-              <p className="flex items-center gap-1.5 text-content font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-accent" />
-                Live Demo Control Center
-              </p>
-              <p>
-                In <strong>Phase 4</strong>, this modal powers live edge camera broadcasts:
-              </p>
-              <ul className="list-disc list-inside space-y-1 text-content-subtle pl-1">
-                <li>Broadcast new pothole / garbage detections to the GIS map.</li>
-                <li>Simulate 2nd truck passing within 5m to showcase MongoDB <code className="text-accent font-mono">$near</code> deduplication.</li>
-              </ul>
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowSimModal(false)}
-                className="px-5 py-2 bg-inverse text-inverse-text text-xs font-medium rounded-pill hover:opacity-90 transition-opacity"
-              >
-                Close Simulator Preview
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Auth Modal */}
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </>
   );
 }
