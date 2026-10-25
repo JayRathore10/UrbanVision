@@ -1,0 +1,313 @@
+{
+  "_comment": "DUMMY DEVELOPMENT DATA — This file contains sample API responses for frontend development. These records do NOT exist in any database.",
+
+  "sampleSupervisor": {
+    "success": true,
+    "data": {
+      "user": {
+        "_id": "670000000000000000000001",
+        "name": "Rajesh Kumar",
+        "email": "rajesh.supervisor@indore.gov.in",
+        "role": "Supervisor",
+        "phone": "+91-9876543210",
+        "employeeId": "IMC-SUP-001",
+        "isActive": true,
+        "createdAt": "2026-01-15T08:00:00.000Z"
+      },
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.SAMPLE_TOKEN"
+    }
+  },
+
+  "sampleWorker": {
+    "success": true,
+    "data": {
+      "user": {
+        "_id": "670000000000000000000002",
+        "name": "Amit Patel",
+        "email": "amit.worker@indore.gov.in",
+        "role": "Worker",
+        "phone": "+91-9123456780",
+        "employeeId": "IMC-WRK-042",
+        "isActive": true,
+        "createdAt": "2026-03-10T10:00:00.000Z"
+      }
+    }
+  },
+
+  "sampleIssues": {
+    "success": true,
+    "message": "Issues fetched successfully",
+    "data": {
+      "issues": [
+        {
+          "_id": "670000000000000000000010",
+          "issueCode": "UV-ISSUE-0001",
+          "type": "Pothole",
+          "category": "Road",
+          "description": "Large pothole approximately 40cm wide and 10cm deep on the main carriageway near Rajwada Palace",
+          "status": "Pending",
+          "severity": "High",
+          "confidenceScore": 0.92,
+          "detectionSource": "AI",
+          "beforeImageUrl": "/api/evidence/cameras/sample-pothole-001.jpg",
+          "location": {
+            "type": "Point",
+            "coordinates": [75.8577, 22.7196]
+          },
+          "address": "Near Rajwada Palace, MG Road, Indore",
+          "cameraDirection": "Front",
+          "detectedAt": "2026-10-25T08:30:00.000Z",
+          "needsHumanReview": false,
+          "aiDetectionDetails": {
+            "model": "gemini-2.0-flash",
+            "imageQuality": "Good",
+            "rawEvidence": ["Irregular depression in asphalt", "Water pooling visible"]
+          }
+        },
+        {
+          "_id": "670000000000000000000011",
+          "issueCode": "UV-ISSUE-0002",
+          "type": "GarbageOverflow",
+          "category": "Sanitation",
+          "description": "Overflowing municipal garbage bin with waste spilling onto sidewalk near Sarafa Bazaar",
+          "status": "Assigned",
+          "severity": "Medium",
+          "confidenceScore": 0.88,
+          "detectionSource": "AI",
+          "beforeImageUrl": "/api/evidence/cameras/sample-garbage-001.jpg",
+          "location": {
+            "type": "Point",
+            "coordinates": [75.8648, 22.7176]
+          },
+          "address": "Sarafa Bazaar Road, Indore",
+          "cameraDirection": "Left",
+          "detectedAt": "2026-10-25T09:15:00.000Z",
+          "assignedWorkerId": "670000000000000000000002",
+          "assignedAt": "2026-10-25T09:45:00.000Z"
+        },
+        {
+          "_id": "670000000000000000000012",
+          "issueCode": "UV-ISSUE-0003",
+          "type": "BlockedDrain",
+          "category": "Drainage",
+          "description": "Stormwater drain blocked with debris and waste near Palasia Square, water accumulating on road",
+          "status": "InProgress",
+          "severity": "Critical",
+          "confidenceScore": 0.85,
+          "detectionSource": "AI",
+          "beforeImageUrl": "/api/evidence/cameras/sample-drain-001.jpg",
+          "location": {
+            "type": "Point",
+            "coordinates": [75.8800, 22.7234]
+          },
+          "address": "Palasia Square, AB Road, Indore",
+          "cameraDirection": "Right",
+          "detectedAt": "2026-10-24T14:20:00.000Z"
+        }
+      ]
+    },
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 3,
+      "totalPages": 1
+    }
+  },
+
+  "sampleGeoJSON": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [75.8577, 22.7196] },
+        "properties": {
+          "issueId": "670000000000000000000010",
+          "issueCode": "UV-ISSUE-0001",
+          "type": "Pothole",
+          "severity": "High",
+          "status": "Pending",
+          "description": "Large pothole near Rajwada Palace",
+          "detectedAt": "2026-10-25T08:30:00.000Z"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [75.8648, 22.7176] },
+        "properties": {
+          "issueId": "670000000000000000000011",
+          "issueCode": "UV-ISSUE-0002",
+          "type": "GarbageOverflow",
+          "severity": "Medium",
+          "status": "Assigned",
+          "description": "Overflowing garbage bin near Sarafa Bazaar",
+          "detectedAt": "2026-10-25T09:15:00.000Z"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": { "type": "Point", "coordinates": [75.8800, 22.7234] },
+        "properties": {
+          "issueId": "670000000000000000000012",
+          "issueCode": "UV-ISSUE-0003",
+          "type": "BlockedDrain",
+          "severity": "Critical",
+          "status": "InProgress",
+          "description": "Blocked stormwater drain at Palasia Square",
+          "detectedAt": "2026-10-24T14:20:00.000Z"
+        }
+      }
+    ]
+  },
+
+  "sampleTask": {
+    "success": true,
+    "data": {
+      "task": {
+        "_id": "670000000000000000000020",
+        "taskCode": "UV-TASK-0001",
+        "issueId": "670000000000000000000011",
+        "workerId": "670000000000000000000002",
+        "assignedBy": "670000000000000000000001",
+        "status": "InProgress",
+        "priority": "Medium",
+        "instructions": "Clear overflowing waste from the garbage bin and sanitize the surrounding area. Report if bin needs replacement.",
+        "assignedAt": "2026-10-25T09:45:00.000Z",
+        "acceptedAt": "2026-10-25T10:00:00.000Z",
+        "startedAt": "2026-10-25T10:30:00.000Z",
+        "attemptCount": 0,
+        "afterImageUrl": null,
+        "aiVerificationResult": {
+          "verified": null,
+          "confidenceScore": null,
+          "needsHumanReview": false
+        }
+      }
+    }
+  },
+
+  "sampleVerificationResult": {
+    "success": true,
+    "message": "Verification successful - awaiting supervisor review",
+    "data": {
+      "task": {
+        "taskCode": "UV-TASK-0001",
+        "status": "AwaitingSupervisorReview",
+        "attemptCount": 1
+      },
+      "aiVerificationResult": {
+        "verified": true,
+        "confidenceScore": 0.91,
+        "reason": "The garbage bin area appears clean and waste has been removed. The surrounding sidewalk is clear.",
+        "beforeCondition": "Overflowing garbage bin with waste on sidewalk",
+        "afterCondition": "Clean bin area, waste removed, sidewalk cleared",
+        "needsHumanReview": false,
+        "model": "gemini-2.0-flash",
+        "verifiedAt": "2026-10-25T12:30:00.000Z"
+      }
+    }
+  },
+
+  "sampleDashboard": {
+    "success": true,
+    "data": {
+      "totalIssues": 156,
+      "pendingIssues": 42,
+      "assignedIssues": 28,
+      "inProgressIssues": 15,
+      "awaitingVerification": 8,
+      "resolvedIssues": 55,
+      "cancelledIssues": 5,
+      "rejectedIssues": 3,
+      "totalTasks": 89,
+      "issuesByType": [
+        { "_id": "Pothole", "count": 52 },
+        { "_id": "Garbage", "count": 38 },
+        { "_id": "GarbageOverflow", "count": 24 },
+        { "_id": "BlockedDrain", "count": 18 },
+        { "_id": "RoadDamage", "count": 14 },
+        { "_id": "SewageOverflow", "count": 10 }
+      ]
+    }
+  },
+
+  "sampleCameraIngestResponse": {
+    "success": true,
+    "message": "Frame processed: 1 new issues, 0 duplicates",
+    "data": {
+      "detectedIssues": [
+        {
+          "id": "670000000000000000000010",
+          "issueCode": "UV-ISSUE-0001",
+          "type": "Pothole",
+          "severity": "High",
+          "confidenceScore": 0.92
+        }
+      ],
+      "duplicates": [],
+      "errors": [],
+      "aiResult": {
+        "imageQuality": "Good",
+        "summary": "1 pothole detected on road surface",
+        "model": "gemini-2.0-flash"
+      }
+    }
+  },
+
+  "apiEndpoints": {
+    "auth": {
+      "POST /api/auth/register": "Register new worker",
+      "POST /api/auth/login": "Login",
+      "POST /api/auth/logout": "Logout",
+      "GET /api/auth/me": "Get current user",
+      "POST /api/auth/refresh": "Refresh access token"
+    },
+    "cameras": {
+      "POST /api/cameras/ingest": "Upload camera frame for AI analysis",
+      "POST /api/cameras/video": "Upload video for frame extraction",
+      "GET /api/cameras/inspection/:id": "Get inspection status",
+      "GET /api/cameras": "List active cameras"
+    },
+    "issues": {
+      "GET /api/issues": "List and filter issues",
+      "GET /api/issues/map": "GeoJSON map data",
+      "GET /api/issues/:id": "Issue details",
+      "PATCH /api/issues/:id": "Update issue",
+      "PATCH /api/issues/:id/status": "Update issue status"
+    },
+    "tasks": {
+      "GET /api/tasks": "List tasks",
+      "GET /api/tasks/:id": "Task details",
+      "POST /api/assign": "Assign issue to worker",
+      "PATCH /api/tasks/:id/reassign": "Reassign task",
+      "POST /api/tasks/:id/cancel": "Cancel task",
+      "POST /api/tasks/:id/approve": "Approve resolution",
+      "POST /api/tasks/:id/reject": "Reject resolution",
+      "POST /api/tasks/:id/accept": "Worker accepts task",
+      "POST /api/tasks/:id/start": "Worker starts work",
+      "POST /api/tasks/:id/resolve": "Worker submits after-photo",
+      "POST /api/tasks/:id/resubmit": "Worker resubmits evidence"
+    },
+    "worker": {
+      "GET /api/worker/tasks": "Worker's tasks",
+      "GET /api/worker/tasks/:id": "Worker task detail",
+      "GET /api/worker/history": "Worker history",
+      "GET /api/worker/stats": "Worker statistics"
+    },
+    "supervisor": {
+      "GET /api/supervisor/workers": "List workers",
+      "GET /api/supervisor/workers/:id": "Worker details",
+      "GET /api/supervisor/workers/:id/tasks": "Worker task history",
+      "GET /api/supervisor/reviews": "Pending reviews",
+      "GET /api/supervisor/reviews/:taskId": "Review detail"
+    },
+    "dashboard": {
+      "GET /api/dashboard/summary": "Dashboard summary",
+      "GET /api/dashboard/issues-by-type": "Issues by type",
+      "GET /api/dashboard/issues-by-status": "Issues by status",
+      "GET /api/dashboard/issues-by-severity": "Issues by severity",
+      "GET /api/dashboard/detection-trends": "Detection trends",
+      "GET /api/dashboard/resolution-metrics": "Resolution metrics",
+      "GET /api/dashboard/worker-performance": "Worker performance"
+    }
+  }
+}

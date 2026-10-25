@@ -27,3 +27,11 @@
 - [ ] Build Issue Details Panel.
 - [ ] Build Task Assignment Modal.
 - [ ] Build Mobile Worker view for image uploading.
+
+
+
+
+
+<!-- 
+
+also make a backend_task_completion. file that take  track of task that are completing -->

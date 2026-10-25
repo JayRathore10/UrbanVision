@@ -1,0 +1,408 @@
+openapi: 3.0.3
+info:
+  title: UrbanVision API
+  description: >
+    AI-powered municipal road inspection, issue detection, task assignment,
+    and maintenance verification platform backend.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      tags: [System]
+      responses:
+        '200':
+          description: API is healthy
+
+  /auth/register:
+    post:
+      summary: Register a new worker account
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 6 }
+                phone: { type: string }
+                employeeId: { type: string }
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Validation error
+        '409':
+          description: Email already registered
+
+  /auth/login:
+    post:
+      summary: User login
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: Login successful with JWT tokens
+        '401':
+          description: Invalid email or password
+
+  /auth/me:
+    get:
+      summary: Get currently authenticated user profile
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+        '401':
+          description: Unauthorized
+
+  /auth/refresh:
+    post:
+      summary: Refresh JWT access token
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200':
+          description: New tokens generated
+        '401':
+          description: Invalid refresh token
+
+  /cameras/ingest:
+    post:
+      summary: Ingest camera frame and perform Gemini AI road issue detection
+      tags: [Cameras]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image, vehicleId, cameraId, cameraDirection, latitude, longitude]
+              properties:
+                image: { type: string, format: binary }
+                vehicleId: { type: string }
+                cameraId: { type: string }
+                cameraDirection: { type: string, enum: [Front, Left, Right] }
+                latitude: { type: number }
+                longitude: { type: number }
+                capturedAt: { type: string, format: date-time }
+                inspectionId: { type: string }
+                locationAccuracyMeters: { type: number }
+      responses:
+        '201':
+          description: Frame processed with detected issues or deduplication results
+        '400':
+          description: Invalid file format or missing coordinates
+        '403':
+          description: Requires Supervisor role
+
+  /cameras/video:
+    post:
+      summary: Ingest video for frame extraction and inspection processing
+      tags: [Cameras]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [video, vehicleId, cameraId, cameraDirection]
+              properties:
+                video: { type: string, format: binary }
+                vehicleId: { type: string }
+                cameraId: { type: string }
+                cameraDirection: { type: string, enum: [Front, Left, Right] }
+                inspectionId: { type: string }
+      responses:
+        '202':
+          description: Video accepted for processing
+
+  /cameras:
+    get:
+      summary: List all active municipal vehicle cameras
+      tags: [Cameras]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of cameras
+
+  /issues:
+    get:
+      summary: List and filter detected civic issues
+      tags: [Issues]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string }
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: severity
+          schema: { type: string }
+        - in: query
+          name: latitude
+          schema: { type: number }
+        - in: query
+          name: longitude
+          schema: { type: number }
+        - in: query
+          name: radiusMeters
+          schema: { type: number }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: Paginated list of issues
+
+  /issues/map:
+    get:
+      summary: Get GeoJSON FeatureCollection of issues for interactive map markers
+      tags: [Issues]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: GeoJSON FeatureCollection
+
+  /issues/{id}:
+    get:
+      summary: Get issue details and audit history
+      tags: [Issues]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Issue details with audit trail
+        '404':
+          description: Issue not found
+    patch:
+      summary: Update issue description, severity, address
+      tags: [Issues]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Issue updated
+
+  /assign:
+    post:
+      summary: Assign issue to worker
+      tags: [Tasks]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [issueId, workerId]
+              properties:
+                issueId: { type: string }
+                workerId: { type: string }
+                priority: { type: string, enum: [Low, Medium, High, Urgent] }
+                instructions: { type: string }
+                dueAt: { type: string, format: date-time }
+      responses:
+        '201':
+          description: Task assigned
+        '409':
+          description: Duplicate active assignment
+
+  /tasks:
+    get:
+      summary: List tasks with filters and pagination
+      tags: [Tasks]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task list
+
+  /tasks/{id}/reassign:
+    patch:
+      summary: Reassign task to another worker
+      tags: [Tasks]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task reassigned
+
+  /tasks/{id}/cancel:
+    post:
+      summary: Cancel task and return issue to pending
+      tags: [Tasks]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task cancelled
+
+  /tasks/{id}/accept:
+    post:
+      summary: Worker accepts an assigned task
+      tags: [Worker]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task accepted
+
+  /tasks/{id}/start:
+    post:
+      summary: Worker starts work on a task
+      tags: [Worker]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task moved to InProgress
+
+  /tasks/{id}/resolve:
+    post:
+      summary: Worker submits after-repair photo for Gemini AI verification
+      tags: [Worker]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image: { type: string, format: binary }
+                workerNotes: { type: string }
+                latitude: { type: number }
+                longitude: { type: number }
+      responses:
+        '200':
+          description: AI verification result and task updated to AwaitingSupervisorReview
+
+  /tasks/{id}/approve:
+    post:
+      summary: Supervisor approves verified repair work, closing issue and task
+      tags: [Supervisor]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task and Issue resolved
+
+  /tasks/{id}/reject:
+    post:
+      summary: Supervisor rejects repair work, returning task for rework
+      tags: [Supervisor]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Task rejected
+
+  /worker/tasks:
+    get:
+      summary: Get tasks assigned to logged-in worker
+      tags: [Worker]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Worker task list
+
+  /worker/stats:
+    get:
+      summary: Get worker statistics
+      tags: [Worker]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Worker statistics
+
+  /supervisor/workers:
+    get:
+      summary: List all active field workers with current workload counts
+      tags: [Supervisor]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Workers list
+
+  /supervisor/reviews:
+    get:
+      summary: List tasks awaiting supervisor review
+      tags: [Supervisor]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Tasks awaiting review
+
+  /dashboard/summary:
+    get:
+      summary: Aggregate municipal dashboard metrics
+      tags: [Dashboard]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Summary counts of issues, tasks, and status breakdowns
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
