@@ -1,0 +1,272 @@
+{
+  "isMockData": true,
+  "systemInfo": {
+    "city": "Indore Municipal Corporation (IMC)",
+    "state": "Madhya Pradesh",
+    "country": "India",
+    "edgeFleetCoverage": "94.2%",
+    "lastSync": "2026-10-25T11:45:00.000Z"
+  },
+  "issues": [
+    {
+      "id": "ISS-1001",
+      "_id": "671be101a011223344550001",
+      "type": "pothole",
+      "title": "Severe Crater Pothole on Palasia Main Road",
+      "description": "Deep asphalt breakdown causing vehicle swerves near Palasia intersection.",
+      "severity": "high",
+      "status": "pending",
+      "location": {
+        "address": "Palasia Square, AB Road, Indore, MP 452001",
+        "lat": 22.7244,
+        "lng": 75.8839,
+        "type": "Point",
+        "coordinates": [75.8839, 22.7244]
+      },
+      "imageUrl": "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80",
+      "detectedAt": "2026-10-25T08:15:30.000Z",
+      "reportedByVehicle": "MP-09-GC-4122",
+      "confidenceScore": 0.96,
+      "duplicateCount": 2,
+      "assignedWorkerId": null
+    },
+    {
+      "id": "ISS-1002",
+      "_id": "671be101a011223344550002",
+      "type": "garbage",
+      "title": "Illegal Commercial Solid Waste Dump",
+      "description": "Overflowing mixed municipal waste blocking pedestrian walkway.",
+      "severity": "high",
+      "status": "assigned",
+      "location": {
+        "address": "Near 56 Dukan Market, New Palasia, Indore, MP 452001",
+        "lat": 22.7218,
+        "lng": 75.8794,
+        "type": "Point",
+        "coordinates": [75.8794, 22.7218]
+      },
+      "imageUrl": "https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80",
+      "detectedAt": "2026-10-25T07:42:10.000Z",
+      "reportedByVehicle": "MP-09-GC-1088",
+      "confidenceScore": 0.94,
+      "duplicateCount": 0,
+      "assignedWorkerId": "WKR-01",
+      "assignedWorker": {
+        "id": "WKR-01",
+        "name": "Ramesh Sharma",
+        "phone": "+91 98765 43210"
+      }
+    },
+    {
+      "id": "ISS-1003",
+      "_id": "671be101a011223344550003",
+      "type": "pothole",
+      "title": "Road Surface Fissure & Pothole",
+      "description": "Medium depth pothole on fast-lane approach towards Vijay Nagar circle.",
+      "severity": "medium",
+      "status": "pending",
+      "location": {
+        "address": "Vijay Nagar Circle, Near Orbit Mall, Indore, MP 452010",
+        "lat": 22.7533,
+        "lng": 75.8937,
+        "type": "Point",
+        "coordinates": [75.8937, 22.7533]
+      },
+      "imageUrl": "https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?auto=format&fit=crop&w=800&q=80",
+      "detectedAt": "2026-10-25T06:20:00.000Z",
+      "reportedByVehicle": "MP-09-GC-2301",
+      "confidenceScore": 0.89,
+      "duplicateCount": 1,
+      "assignedWorkerId": null
+    },
+    {
+      "id": "ISS-1004",
+      "_id": "671be101a011223344550004",
+      "type": "drain",
+      "title": "Blocked Stormwater Drain Culvert",
+      "description": "Plastic silt accumulation causing water backflow near Rajwada market perimeter.",
+      "severity": "medium",
+      "status": "assigned",
+      "location": {
+        "address": "MG Road, Rajwada Precinct, Indore, MP 452002",
+        "lat": 22.7188,
+        "lng": 75.8552,
+        "type": "Point",
+        "coordinates": [75.8552, 22.7188]
+      },
+      "imageUrl": "https://images.unsplash.com/photo-1584467735871-8e85353a8413?auto=format&fit=crop&w=800&q=80",
+      "detectedAt": "2026-10-24T18:30:00.000Z",
+      "reportedByVehicle": "MP-09-GC-4122",
+      "confidenceScore": 0.91,
+      "duplicateCount": 0,
+      "assignedWorkerId": "WKR-02",
+      "assignedWorker": {
+        "id": "WKR-02",
+        "name": "Sunita Patel",
+        "phone": "+91 98765 43211"
+      }
+    },
+    {
+      "id": "ISS-1005",
+      "_id": "671be101a011223344550005",
+      "type": "pothole",
+      "title": "Repaired Asphalt Patching at Bhawarkua",
+      "description": "Cold-mix asphalt compaction verified by field worker verification photo.",
+      "severity": "high",
+      "status": "resolved",
+      "location": {
+        "address": "Bhawarkua Main Junction, Indore, MP 452001",
+        "lat": 22.6926,
+        "lng": 75.8676,
+        "type": "Point",
+        "coordinates": [75.8676, 22.6926]
+      },
+      "imageUrl": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80",
+      "resolvedImageUrl": "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=80",
+      "detectedAt": "2026-10-24T10:12:00.000Z",
+      "resolvedAt": "2026-10-24T15:40:00.000Z",
+      "reportedByVehicle": "MP-09-GC-3044",
+      "confidenceScore": 0.97,
+      "duplicateCount": 3,
+      "assignedWorkerId": "WKR-04",
+      "assignedWorker": {
+        "id": "WKR-04",
+        "name": "Pooja Singh",
+        "phone": "+91 98765 43213"
+      }
+    },
+    {
+      "id": "ISS-1006",
+      "_id": "671be101a011223344550006",
+      "type": "garbage",
+      "title": "Cleared Waste Lot at Sarafa Bazaar",
+      "description": "Sanitation crew cleared overnight food wrapper accumulation.",
+      "severity": "low",
+      "status": "resolved",
+      "location": {
+        "address": "Sarafa Bazaar Night Market Lane, Indore, MP 452002",
+        "lat": 22.7176,
+        "lng": 75.8538,
+        "type": "Point",
+        "coordinates": [75.8538, 22.7176]
+      },
+      "imageUrl": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=800&q=80",
+      "resolvedImageUrl": "https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=800&q=80",
+      "detectedAt": "2026-10-24T05:55:00.000Z",
+      "resolvedAt": "2026-10-24T09:20:00.000Z",
+      "reportedByVehicle": "MP-09-GC-1088",
+      "confidenceScore": 0.95,
+      "duplicateCount": 0,
+      "assignedWorkerId": "WKR-01",
+      "assignedWorker": {
+        "id": "WKR-01",
+        "name": "Ramesh Sharma",
+        "phone": "+91 98765 43210"
+      }
+    }
+  ],
+  "workers": [
+    {
+      "id": "WKR-01",
+      "_id": "671be201a011223344550101",
+      "name": "Ramesh Sharma",
+      "role": "Senior Field Lead",
+      "phone": "+91 98765 43210",
+      "zone": "Palasia & Central (Zone 4)",
+      "status": "active",
+      "tasksAssigned": 1,
+      "tasksCompleted": 34,
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80"
+    },
+    {
+      "id": "WKR-02",
+      "_id": "671be201a011223344550102",
+      "name": "Sunita Patel",
+      "role": "Drainage Specialist",
+      "phone": "+91 98765 43211",
+      "zone": "Rajwada Heritage (Zone 1)",
+      "status": "active",
+      "tasksAssigned": 1,
+      "tasksCompleted": 28,
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80"
+    },
+    {
+      "id": "WKR-03",
+      "_id": "671be201a011223344550103",
+      "name": "Amit Verma",
+      "role": "Rapid Pothole Crew",
+      "phone": "+91 98765 43212",
+      "zone": "Vijay Nagar & Ring Road (Zone 2)",
+      "status": "available",
+      "tasksAssigned": 0,
+      "tasksCompleted": 41,
+      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&q=80"
+    },
+    {
+      "id": "WKR-04",
+      "_id": "671be201a011223344550104",
+      "name": "Pooja Singh",
+      "role": "Civic Rapid Responder",
+      "phone": "+91 98765 43213",
+      "zone": "Bhawarkua & IT Park (Zone 3)",
+      "status": "active",
+      "tasksAssigned": 0,
+      "tasksCompleted": 52,
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80"
+    }
+  ],
+  "analytics": {
+    "cityHealthScore": 94,
+    "cityHealthDelta": "+3.2%",
+    "totalIssuesReported": 182,
+    "totalIssuesResolved": 164,
+    "activePendingIssues": 18,
+    "resolutionRatePercent": 90.1,
+    "avgResolutionTimeHours": 3.8,
+    "potholesCount": 94,
+    "garbageCount": 68,
+    "drainsCount": 20,
+    "activeVehiclesCount": 16,
+    "weeklyStats": [
+      { "day": "Mon", "detected": 28, "resolved": 26, "potholes": 14, "garbage": 12 },
+      { "day": "Tue", "detected": 32, "resolved": 30, "potholes": 18, "garbage": 11 },
+      { "day": "Wed", "detected": 24, "resolved": 25, "potholes": 12, "garbage": 10 },
+      { "day": "Thu", "detected": 36, "resolved": 34, "potholes": 20, "garbage": 13 },
+      { "day": "Fri", "detected": 30, "resolved": 29, "potholes": 16, "garbage": 11 },
+      { "day": "Sat", "detected": 22, "resolved": 20, "potholes": 10, "garbage": 9 },
+      { "day": "Sun", "detected": 10, "resolved": 10, "potholes": 4, "garbage": 2 }
+    ]
+  },
+  "fleet": [
+    {
+      "id": "TRK-01",
+      "licensePlate": "MP-09-GC-4122",
+      "driver": "Kailash Solanki",
+      "status": "Online",
+      "route": "AB Road Corridor",
+      "lastPing": "2026-10-25T11:43:00.000Z",
+      "edgeModel": "YOLOv8-Nano-EdgeBox-v2",
+      "fps": 28.4
+    },
+    {
+      "id": "TRK-02",
+      "licensePlate": "MP-09-GC-1088",
+      "driver": "Dharmendra J.",
+      "status": "Online",
+      "route": "Old City & Rajwada",
+      "lastPing": "2026-10-25T11:44:12.000Z",
+      "edgeModel": "YOLOv8-Nano-EdgeBox-v2",
+      "fps": 29.1
+    },
+    {
+      "id": "TRK-03",
+      "licensePlate": "MP-09-GC-2301",
+      "driver": "Mahesh B.",
+      "status": "Online",
+      "route": "Vijay Nagar East",
+      "lastPing": "2026-10-25T11:42:55.000Z",
+      "edgeModel": "YOLOv8-Nano-EdgeBox-v2",
+      "fps": 27.8
+    }
+  ]
+}
