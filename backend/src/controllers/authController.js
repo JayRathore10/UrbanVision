@@ -7,19 +7,27 @@ const asyncHandler = require('../utils/asyncHandler');
 const { env } = require('../config/env');
 const { logAction } = require('../services/auditLogService');
 
-const generateTokens = (userId) => {
-  const accessToken = jwt.sign({ id: userId }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
-  const refreshToken = jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN });
-  return { accessToken, refreshToken };
+/**
+ * Generate a single simple JWT token
+ */
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id || user.id, role: user.role },
+    env.JWT_SECRET,
+    { expiresIn: '7d' } // 7 days simple session
+  );
 };
 
+/**
+ * Register User (Supervisor or Worker)
+ */
 exports.register = asyncHandler(async (req, res) => {
   const { name, email, password, phone, employeeId, role, assignedArea, department } = req.body;
 
   const existing = await User.findOne({ email });
   if (existing) throw ApiError.conflict('Email already registered');
 
-  const userRole = role === 'Supervisor' ? 'Supervisor' : 'Worker';
+  const userRole = ['Admin', 'Supervisor', 'Worker'].includes(role) ? role : 'Worker';
   const userData = { name, email, passwordHash: password, role: userRole };
   if (phone) userData.phone = phone;
   if (employeeId) userData.employeeId = employeeId;
@@ -28,15 +36,30 @@ exports.register = asyncHandler(async (req, res) => {
 
   const user = await User.create(userData);
 
-  const tokens = generateTokens(user._id);
-  await logAction({ actorId: user._id, actorRole: 'Worker', action: 'USER_REGISTERED', entityType: 'User', entityId: user._id, metadata: { email } });
+  const token = generateToken(user);
+  await logAction({
+    actorId: user._id,
+    actorRole: user.role,
+    action: 'USER_REGISTERED',
+    entityType: 'User',
+    entityId: user._id,
+    metadata: { email },
+  });
 
   res.status(201).json({
-    success: true, message: 'Registration successful',
-    data: { user: user.toJSON(), ...tokens },
+    success: true,
+    message: 'Registration successful',
+    data: {
+      user: user.toJSON(),
+      token,
+      accessToken: token, // alias for frontend compatibility
+    },
   });
 });
 
+/**
+ * Login User with Email and Password
+ */
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -50,36 +73,54 @@ exports.login = asyncHandler(async (req, res) => {
   user.lastLoginAt = new Date();
   await user.save();
 
-  const tokens = generateTokens(user._id);
-  await logAction({ actorId: user._id, actorRole: user.role, action: 'USER_LOGIN', entityType: 'User', entityId: user._id, metadata: { email } });
+  const token = generateToken(user);
+  await logAction({
+    actorId: user._id,
+    actorRole: user.role,
+    action: 'USER_LOGIN',
+    entityType: 'User',
+    entityId: user._id,
+    metadata: { email },
+  });
 
   res.json({
-    success: true, message: 'Login successful',
-    data: { user: user.toJSON(), ...tokens },
+    success: true,
+    message: 'Login successful',
+    data: {
+      user: user.toJSON(),
+      token,
+      accessToken: token, // alias for frontend compatibility
+    },
   });
 });
 
+/**
+ * Logout
+ */
 exports.logout = asyncHandler(async (req, res) => {
-  // JWT is stateless - client should discard the token
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
+/**
+ * Get Authenticated User Profile
+ */
 exports.getMe = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { user: req.user } });
 });
 
+/**
+ * Simple Token verification / check
+ */
 exports.refreshToken = asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
-  if (!refreshToken) throw ApiError.badRequest('Refresh token is required');
-
-  try {
-    const decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user || !user.isActive) throw ApiError.unauthorized('Invalid refresh token');
-
-    const tokens = generateTokens(user._id);
-    res.json({ success: true, data: tokens });
-  } catch (error) {
-    throw ApiError.unauthorized('Invalid or expired refresh token');
+  if (!req.user) {
+    throw ApiError.unauthorized('No active session');
   }
+  const token = generateToken(req.user);
+  res.json({
+    success: true,
+    data: {
+      token,
+      accessToken: token,
+    },
+  });
 });

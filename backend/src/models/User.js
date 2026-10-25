@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: [true, 'Name is required'], trim: true, maxlength: [100, 'Name cannot exceed 100 characters'] },
     email: { type: String, required: [true, 'Email is required'], unique: true, lowercase: true, trim: true, match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'] },
     passwordHash: { type: String, required: [true, 'Password is required'], minlength: 6, select: false },
-    role: { type: String, enum: ['Supervisor', 'Worker'], default: 'Worker' },
+    role: { type: String, enum: ['Admin', 'Supervisor', 'Worker'], default: 'Worker' },
     phone: { type: String, trim: true },
     employeeId: { type: String, trim: true, unique: true, sparse: true },
     assignedArea: { type: String, trim: true, default: null },

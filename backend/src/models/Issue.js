@@ -40,6 +40,8 @@ const issueSchema = new mongoose.Schema(
     detectionSource: { type: String, enum: ['AI', 'Manual', 'EdgeDevice'], default: 'AI' },
     beforeImageUrl: { type: String },
     beforeImagePath: { type: String, select: false },
+    afterImageUrl: { type: String, default: null },
+    afterImagePath: { type: String, select: false, default: null },
     evidence: [evidenceSchema],
     location: {
       type: { type: String, enum: ['Point'], required: true, default: 'Point' },

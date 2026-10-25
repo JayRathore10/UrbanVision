@@ -17,7 +17,7 @@ const Inspection = require('../models/Inspection');
 const AuditLog = require('../models/AuditLog');
 const { UPLOAD_DIR } = require('../config/multer');
 
-// Create minimal valid MP4 binary data for test playback
+// Create minimal valid MP4 binary data for test playback (only if not already present)
 const createSampleMp4 = (filename) => {
   const videoDir = path.join(UPLOAD_DIR, 'videos');
   if (!fs.existsSync(videoDir)) {
@@ -25,6 +25,10 @@ const createSampleMp4 = (filename) => {
   }
 
   const filePath = path.join(videoDir, filename);
+  if (fs.existsSync(filePath) && fs.statSync(filePath).size > 100000) {
+    return filePath;
+  }
+
   // Valid minimal MP4 box structure (ftyp + moov + mdat)
   const ftyp = Buffer.from('000000206674797069736f6d0000020069736f6d69736f32617663316d703431', 'hex');
   const moov = Buffer.from('0000006c6d6f6f76000000646d76686400000000' + '00'.repeat(96), 'hex');
@@ -34,13 +38,16 @@ const createSampleMp4 = (filename) => {
   return filePath;
 };
 
-// Create a sample SVG/PNG placeholder image
+// Create a sample SVG/PNG placeholder image (only if not already present)
 const createSampleImage = (subdir, filename, text) => {
   const dir = path.join(UPLOAD_DIR, subdir);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
   const filePath = path.join(dir, filename);
+  if (fs.existsSync(filePath) && fs.statSync(filePath).size > 400) {
+    return filePath;
+  }
   const svg = `<svg width="640" height="480" xmlns="http://www.w3.org/2000/svg">
     <rect width="100%" height="100%" fill="#1e293b"/>
     <circle cx="320" cy="240" r="100" fill="#3b82f6" opacity="0.3"/>
@@ -76,10 +83,23 @@ const seed = async () => {
     createSampleImage('cameras', 'drain-palasia.svg', 'Blocked Drain at Palasia');
     createSampleImage('evidence', 'repair-proof-1.svg', 'Repaired Asphalt Proof');
 
-    // 1. Seed Supervisors
+    // 1. Seed System Admin (Commissioner)
+    const adminUser = await User.create({
+      name: 'Vikramaditya Rao',
+      email: 'admin@urbanvision.gov.in',
+      passwordHash: 'Password123',
+      role: 'Admin',
+      employeeId: 'IMC-ADM-01',
+      phone: '+91 98765 00001',
+      assignedArea: 'Indore Municipal Corporation (All Zones)',
+      department: 'City Governance & Executive Administration',
+      isActive: true,
+    });
+
+    // 2. Seed Supervisors
     const supervisor1 = await User.create({
       name: 'Rajesh Kumar',
-      email: 'rajesh@urbanvision.gov.in',
+      email: 'supervisor@urbanvision.gov.in',
       passwordHash: 'Password123',
       role: 'Supervisor',
       employeeId: 'IMC-SUP-01',
@@ -87,6 +107,21 @@ const seed = async () => {
       assignedArea: 'Zone 1 - Central Indore / Rajwada',
       department: 'Roads & Civil Infrastructure',
       assignedVehicles: ['VH-001', 'VH-003'],
+      location: { type: 'Point', coordinates: [75.8577, 22.7196] },
+      isActive: true,
+    });
+
+    // Alias for existing tests
+    await User.create({
+      name: 'Rajesh Kumar',
+      email: 'rajesh@urbanvision.gov.in',
+      passwordHash: 'Password123',
+      role: 'Supervisor',
+      employeeId: 'IMC-SUP-01-ALIAS',
+      phone: '+91 98765 43210',
+      assignedArea: 'Zone 1 - Central Indore / Rajwada',
+      department: 'Roads & Civil Infrastructure',
+      assignedVehicles: ['VH-001'],
       location: { type: 'Point', coordinates: [75.8577, 22.7196] },
       isActive: true,
     });
@@ -104,15 +139,28 @@ const seed = async () => {
       location: { type: 'Point', coordinates: [75.8950, 22.7533] },
       isActive: true,
     });
-    console.log('[UrbanVision Seed] Created 2 Supervisors: Rajesh Kumar & Priya Sharma.');
+    console.log('[UrbanVision Seed] Created Admin (Vikramaditya) & Supervisors (Rajesh & Priya).');
 
-    // 2. Seed Workers
+    // 3. Seed Workers
     const worker1 = await User.create({
+      name: 'Amit Patel',
+      email: 'worker@urbanvision.gov.in',
+      passwordHash: 'Password123',
+      role: 'Worker',
+      employeeId: 'IMC-WRK-01',
+      phone: '+91 91234 56781',
+      assignedArea: 'Zone 1 - Central Indore',
+      department: 'Pavement Maintenance Crew',
+      isActive: true,
+    });
+
+    // Alias for existing tests
+    await User.create({
       name: 'Amit Patel',
       email: 'amit@urbanvision.gov.in',
       passwordHash: 'Password123',
       role: 'Worker',
-      employeeId: 'IMC-WRK-01',
+      employeeId: 'IMC-WRK-01-ALIAS',
       phone: '+91 91234 56781',
       assignedArea: 'Zone 1 - Central Indore',
       department: 'Pavement Maintenance Crew',
@@ -175,7 +223,7 @@ const seed = async () => {
       videoUrl: '/api/evidence/videos/rajwada-cam-front.mp4',
       videoPath: path.join(UPLOAD_DIR, 'videos', 'rajwada-cam-front.mp4'),
       videoFilename: 'rajwada-cam-front.mp4',
-      fileSize: 4200000,
+      fileSize: fs.statSync(path.join(UPLOAD_DIR, 'videos', 'rajwada-cam-front.mp4')).size,
       mimeType: 'video/mp4',
       duration: 185,
       cameraDirection: 'Front',
@@ -199,7 +247,7 @@ const seed = async () => {
       videoUrl: '/api/evidence/videos/vijaynagar-cam-front.mp4',
       videoPath: path.join(UPLOAD_DIR, 'videos', 'vijaynagar-cam-front.mp4'),
       videoFilename: 'vijaynagar-cam-front.mp4',
-      fileSize: 5800000,
+      fileSize: fs.statSync(path.join(UPLOAD_DIR, 'videos', 'vijaynagar-cam-front.mp4')).size,
       mimeType: 'video/mp4',
       duration: 240,
       cameraDirection: 'Left',
@@ -227,6 +275,8 @@ const seed = async () => {
       detectionSource: 'AI',
       beforeImageUrl: '/api/evidence/cameras/pothole-rajwada.svg',
       beforeImagePath: path.join(UPLOAD_DIR, 'cameras', 'pothole-rajwada.svg'),
+      afterImageUrl: '/api/evidence/evidence/repair-proof-1.svg',
+      afterImagePath: path.join(UPLOAD_DIR, 'evidence', 'repair-proof-1.svg'),
       location: { type: 'Point', coordinates: [75.8577, 22.7196] }, // Rajwada Palace
       address: 'MG Road, Near Rajwada Palace, Indore',
       cameraId: 'CAM-F-001',
@@ -277,6 +327,8 @@ const seed = async () => {
       detectionSource: 'AI',
       beforeImageUrl: '/api/evidence/cameras/drain-palasia.svg',
       beforeImagePath: path.join(UPLOAD_DIR, 'cameras', 'drain-palasia.svg'),
+      afterImageUrl: '/api/evidence/evidence/drain-after.svg',
+      afterImagePath: path.join(UPLOAD_DIR, 'evidence', 'drain-after.svg'),
       location: { type: 'Point', coordinates: [75.8888, 22.7244] }, // Palasia Square
       address: 'Palasia Square, AB Road Intersection, Indore',
       cameraId: 'CAM-F-002',
@@ -303,6 +355,8 @@ const seed = async () => {
       detectionSource: 'AI',
       beforeImageUrl: '/api/evidence/cameras/pothole-rajwada.svg',
       beforeImagePath: path.join(UPLOAD_DIR, 'cameras', 'pothole-rajwada.svg'),
+      afterImageUrl: '/api/evidence/evidence/repair-proof-1.svg',
+      afterImagePath: path.join(UPLOAD_DIR, 'evidence', 'repair-proof-1.svg'),
       location: { type: 'Point', coordinates: [75.8950, 22.7533] }, // Vijay Nagar Square
       address: 'Near Vijay Nagar Square, Scheme 54, Indore',
       cameraId: 'CAM-F-002',
@@ -322,6 +376,8 @@ const seed = async () => {
       detectionSource: 'AI',
       beforeImageUrl: '/api/evidence/cameras/drain-palasia.svg',
       beforeImagePath: path.join(UPLOAD_DIR, 'cameras', 'drain-palasia.svg'),
+      afterImageUrl: '/api/evidence/evidence/drain-after.svg',
+      afterImagePath: path.join(UPLOAD_DIR, 'evidence', 'drain-after.svg'),
       location: { type: 'Point', coordinates: [75.8770, 22.7230] }, // Chhappan Dukan
       address: '56 Dukan (Chhappan Dukan), New Palasia, Indore',
       cameraId: 'CAM-F-001',
@@ -342,6 +398,8 @@ const seed = async () => {
       detectionSource: 'AI',
       beforeImageUrl: '/api/evidence/cameras/pothole-rajwada.svg',
       beforeImagePath: path.join(UPLOAD_DIR, 'cameras', 'pothole-rajwada.svg'),
+      afterImageUrl: '/api/evidence/evidence/repair-proof-1.svg',
+      afterImagePath: path.join(UPLOAD_DIR, 'evidence', 'repair-proof-1.svg'),
       location: { type: 'Point', coordinates: [75.8670, 22.6900] }, // Bhanwar Kuan
       address: 'Bhanwar Kuan Main Junction, Indore',
       assignedWorkerId: worker1._id,
@@ -377,6 +435,8 @@ const seed = async () => {
       detectionSource: 'AI',
       beforeImageUrl: '/api/evidence/cameras/drain-palasia.svg',
       beforeImagePath: path.join(UPLOAD_DIR, 'cameras', 'drain-palasia.svg'),
+      afterImageUrl: '/api/evidence/evidence/drain-after.svg',
+      afterImagePath: path.join(UPLOAD_DIR, 'evidence', 'drain-after.svg'),
       location: { type: 'Point', coordinates: [75.9120, 22.7180] }, // Bengali Square
       address: 'Near Bengali Square Flyover, Ring Road, Indore',
       assignedWorkerId: worker2._id,
@@ -509,16 +569,17 @@ const seed = async () => {
     console.log('[UrbanVision Seed] Created Audit Logs.');
 
     console.log('\n=============================================');
-    console.log('✅ UrbanVision Database Seed Completed Successfully!');
+    console.log('✅ UrbanVision 3-Role Architecture Seeded!');
     console.log('=============================================');
-    console.log('Supervisors:');
-    console.log('  1. Rajesh Kumar: rajesh@urbanvision.gov.in / Password123 (Zone 1 - Rajwada)');
-    console.log('  2. Priya Sharma: priya@urbanvision.gov.in / Password123 (Zone 2 - Vijay Nagar)');
-    console.log('Workers:');
-    console.log('  - Amit Patel: amit@urbanvision.gov.in / Password123');
-    console.log('  - Sunita Verma: sunita@urbanvision.gov.in / Password123');
-    console.log('  - Rahul Joshi: rahul@urbanvision.gov.in / Password123');
-    console.log('  - Vikram Singh: vikram@urbanvision.gov.in / Password123');
+    console.log('1. 👑 ADMIN:');
+    console.log('   - Vikramaditya Rao: admin@urbanvision.gov.in / Password123');
+    console.log('   - Role: Admin • Municipal Commissioner (Full City Control)');
+    console.log('2. 🛡️ SUPERVISOR:');
+    console.log('   - Rajesh Kumar: supervisor@urbanvision.gov.in (or rajesh@urbanvision.gov.in) / Password123');
+    console.log('   - Role: Supervisor • Zone 1 Rajwada Operations Lead');
+    console.log('3. 👷 WORKER:');
+    console.log('   - Amit Patel: worker@urbanvision.gov.in (or amit@urbanvision.gov.in) / Password123');
+    console.log('   - Role: Worker • Pavement Maintenance Field Crew');
     console.log('=============================================\n');
 
     await mongoose.disconnect();

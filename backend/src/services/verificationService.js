@@ -20,6 +20,8 @@ const runVerification = async ({ taskId, afterImagePath, afterImageUrl, workerId
 
   task.afterImageUrl = afterImageUrl;
   task.afterImagePath = afterImagePath;
+  issue.afterImageUrl = afterImageUrl;
+  issue.afterImagePath = afterImagePath;
   task.attemptCount += 1;
   task.submittedAt = new Date();
   task.aiVerificationResult = {

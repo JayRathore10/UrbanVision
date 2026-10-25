@@ -55,7 +55,7 @@ exports.getIssueMap = asyncHandler(async (req, res) => {
   if (req.query.type) filter.type = req.query.type;
   if (req.query.severity) filter.severity = req.query.severity;
 
-  const issues = await Issue.find(filter).select('issueCode type severity status description location detectedAt cameraDirection');
+  const issues = await Issue.find(filter).select('issueCode type severity status description location detectedAt cameraDirection beforeImageUrl afterImageUrl confidenceScore address');
 
   const features = issues.map(issue => ({
     type: 'Feature',
@@ -69,6 +69,10 @@ exports.getIssueMap = asyncHandler(async (req, res) => {
       description: issue.description,
       detectedAt: issue.detectedAt,
       cameraDirection: issue.cameraDirection,
+      beforeImageUrl: issue.beforeImageUrl,
+      afterImageUrl: issue.afterImageUrl,
+      confidenceScore: issue.confidenceScore,
+      address: issue.address,
     },
   }));
 

@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const auditLogSchema = new mongoose.Schema(
   {
     actorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    actorRole: { type: String, enum: ['Supervisor', 'Worker', 'System'], default: 'System' },
+    actorRole: { type: String, enum: ['Admin', 'Supervisor', 'Worker', 'System'], default: 'System' },
     action: {
       type: String, required: [true, 'Action is required'],
       enum: [
