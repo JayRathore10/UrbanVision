@@ -116,7 +116,6 @@ export default function Dashboard() {
             Automated vision stream ingested from sanitation fleet with Gemini AI classification & worker dispatch.
           </p>
         </div>
-
         <div className="flex items-center gap-3">
           <button
             onClick={fetchDashboardData}

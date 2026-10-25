@@ -233,6 +233,10 @@ export default function WorkerView() {
             <span className="text-2xl font-bold text-success tabular-nums">{resolvedCount}</span>
             <span className="block text-[11px] text-content-muted mt-0.5">Verified Resolved</span>
           </div>
+          <div className="p-3 bg-surface-muted rounded-inner">
+            <span className="text-xl font-bold text-accent tabular-nums">98%</span>
+            <span className="block text-[11px] text-content-muted mt-0.5">AI Pass Rate</span>
+          </div>
         </div>
       </div>
 
