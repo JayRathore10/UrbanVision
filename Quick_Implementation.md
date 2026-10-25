@@ -1,240 +1,141 @@
-# ⚡ UrbanVision: 10-Hour Hackathon Winning Execution Plan
+# ⚡ UrbanVision: 10-Hour Hackathon Execution Plan (2-Player Co-op)
 
-This document condenses the entire scope of `PRD.md`, `ARCHITECTURE.md`, `DESIGN.md`, `AGENTS.md`, and `tasks.md` into a surgical **10-hour execution roadmap**. Every feature listed here is **100% functional** (zero dead buttons or half-baked mockups) and tailored to maximize hackathon judging criteria: **Visual Polish, Technical Depth (GeoJSON `$near`), and Closed-Loop Usability.**
+This execution roadmap is optimized for a 2-person team (1 Backend, 1 Frontend). It parallelizes the workload so neither developer is ever waiting on the other. 
 
----
-
-## ⚠️ Golden Hackathon Rules (From `AGENTS.md` & `DESIGN.md`)
-1. **Strict Stack Boundary:** Backend is **100% TypeScript (`.ts`)**. Frontend is **100% JavaScript/JSX (`.jsx`)**. Do not mix them.
-2. **Unified API Contract:** Every backend endpoint MUST return `{ success: boolean, data: any, message?: string }`.
-3. **Zero Cloud-Upload Headaches:** Do **not** waste 2 hours configuring AWS S3 or Cloudinary IAM roles. Use `multer` to store images in `backend/uploads/` and serve them statically via Express (`app.use('/uploads', express.static('uploads'))`), OR store compressed Base64 strings directly in MongoDB. It works 100% reliably for live demos.
-4. **Instant Role-Switching Auth:** Build real JWT creation/verification, plus a **"1-Click Demo Role Switcher"** pill in the Top Nav (`Officer View` ↔ `Worker View` ↔ `Edge AI Truck Simulator`) so judges can experience the entire closed-loop ecosystem in 30 seconds without typing passwords.
+## ⚠️ The "Zero-Blocker" Strategy
+* **Hour 0 API Handshake:** Before writing code, agree on a static `dummyData.json` file. The Frontend dev will build the entire UI using this local file while the Backend dev builds the real database.
+* **Strict Boundaries:** Backend is **100% TypeScript (`.ts`)**. Frontend is **100% JavaScript/JSX (`.jsx`)**. 
+* **Zero Cloud-Upload Headaches:** Backend uses `multer` to store images locally in `backend/uploads/`. No S3 configuration required.
 
 ---
 
-## ⏱️ Hour-by-Hour Execution Schedule
+## ⏱️ Hour-by-Hour Parallel Execution Schedule
 
-### 🕐 Hour 1: Infrastructure, Monorepo & Database Setup
-*Goal: Get Backend (TS), Frontend (JSX), and MongoDB Atlas talking to each other immediately.*
+### 🕐 Hour 1: Infrastructure & The Handshake
+*Goal: Both environments running locally and the API contract agreed upon.*
 
-- [ ] **1.1 MongoDB Atlas:** Create cluster, database `urbanvision_prod`, whitelist IP `0.0.0.0/0` (crucial for hackathon Wi-Fi changes), and grab `MONGO_URI`.
-- [ ] **1.2 Backend Init (`/backend`):**
-  - Run `npm init -y`
-  - Install: `npm i express mongoose cors dotenv jsonwebtoken multer`
-  - Install Dev/Types: `npm i -D typescript tsx @types/node @types/express @types/cors @types/jsonwebtoken @types/multer`
-  - Create `tsconfig.json` (`target: "ES2022"`, `module: "CommonJS"`, `strict: true`).
-- [ ] **1.3 Frontend Init (`/frontend`):**
-  - Run `npm create vite@latest frontend -- --template react` (Strictly `.jsx`).
-  - Install: `npm i tailwindcss postcss autoprefixer lucide-react recharts leaflet react-leaflet axios react-router-dom`
-- [ ] **1.4 Static Image Server:** Create `/backend/uploads` folder and expose it in `server.ts` so uploaded worker photos render immediately on the map.
+* **🤝 Both:** Define `dummy_issues.json` (include at least 1 pothole, 1 garbage, 1 resolved task) so Frontend can start mapping.
+* **🛠️ Backend (Dev A):**
+  * Create MongoDB Atlas cluster `urbanvision_prod` (whitelist IP `0.0.0.0/0`).
+  * `npm init -y` and install: `express mongoose cors dotenv multer` + TS dev dependencies (`typescript tsx @types/node` etc.).
+  * Configure `tsconfig.json` and start the `server.ts` boilerplate on port 5000.
+* **🎨 Frontend (Dev B):**
+  * `npm create vite@latest frontend -- --template react` (Strictly `.jsx`).
+  * Install: `tailwindcss lucide-react recharts leaflet react-leaflet axios react-router-dom`.
+  * Paste the CSS variables from `DESIGN.md` into `index.css` and configure `tailwind.config.js`.
 
----
+### 🕑 Hour 2: Schemas vs. App Shell
+*Goal: Database shape is locked in; UI layout is established.*
 
-### 🕑 Hour 2: Database Schemas & Geospatial Indexing (`ARCHITECTURE.md`)
-*Goal: Build type-safe Mongoose models with hardware-grade GeoJSON support.*
+* **🛠️ Backend (Dev A):**
+  * Define TS Interfaces (`IUser`, `IIssue`, `ITask`).
+  * Build Mongoose Models (`User`, `Issue`, `Task`).
+  * **CRITICAL:** Add the geospatial index: `issueSchema.index({ location: "2dsphere" })`.
+* **🎨 Frontend (Dev B):**
+  * Build the App Shell: Implement the flash-free Dark/Light mode toggle (`useTheme.js`).
+  * Build `/components/layout/TopNav.jsx` with the pill-based navigation.
+  * Scaffold the 12-column Bento Grid structure in `Dashboard.jsx`.
 
-- [ ] **2.1 TypeScript Interfaces (`/src/types/index.ts`):** Define strict interfaces for `IUser`, `IIssue`, `ITask`, and `IVehicle`.
-- [ ] **2.2 User & Vehicle Models (`/src/models/User.ts`, `Vehicle.ts`):**
-  - `User`: `name`, `role` (`Officer | Worker | Admin`), `email`, `phone`, `avatarUrl`.
-  - `Vehicle`: `licensePlate`, `edgeUnitStatus` (`Online | Offline`), `lastKnownLocation` (GeoJSON Point).
-- [ ] **2.3 Issue Model (`/src/models/Issue.ts`):**
-  - Fields: `type` (`Pothole | Garbage | Drain`), `location: { type: { type: String, enum: ['Point'] }, coordinates: [Number] }` (`[lng, lat]`), `imageUrl`, `severity` (`High | Medium | Low`), `status` (`Pending | Assigned | Resolved`), `detectedAt`, `duplicateCount` (default `1` — great for showing judges how many times trucks saw the same pothole!).
-  - **CRITICAL:** Apply `issueSchema.index({ location: "2dsphere" })` and ensure indexes build on startup.
-- [ ] **2.4 Task Model (`/src/models/Task.ts`):**
-  - Fields: `issueId` (ref `Issue`), `workerId` (ref `User`), `priority` (`High | Medium | Low`), `resolutionProofUrl`, `assignedAt`, `completedAt`.
+### 🕒 Hour 3: Core API Logic vs. Dashboard Widgets
+*Goal: Backend logic starts working; Dashboard starts looking premium.*
 
----
+* **🛠️ Backend (Dev A):**
+  * Build `POST /api/seed` to instantly generate mock users and issues in the database.
+  * Build `GET /api/issues` and `GET /api/analytics` to serve dashboard data.
+* **🎨 Frontend (Dev B):**
+  * Build Bento Primitives (`Card.jsx`, `Badge.jsx`, `MetricBlock.jsx`).
+  * Implement the Recharts Pill Bar chart for issue resolution stats using `dummyData.json`.
 
-### 🕒 Hour 3: Core API & Spatial Deduplication Engine (`PRD.md`)
-*Goal: Complete all REST endpoints, including the signature hackathon-winning `$near` deduplication logic.*
+### 🕓 Hour 4: The Signature Feature (`$near`) vs. GIS Map
+*Goal: The core technical flex of the hackathon takes shape.*
 
-- [ ] **3.1 Auth & Seed Route (`POST /api/auth/login` & `POST /api/seed`):**
-  - Build a `/api/seed` route that pre-populates 3 realistic Field Workers, 3 Garbage Trucks (`MP-09-GV-1024`, etc.), and 15 realistic issues across the city so your map and charts look rich from minute one.
-- [ ] **3.2 Spatial Deduplication Endpoint (`POST /api/issues`):**
-  - Before creating a new issue, execute a Mongoose `$near` query:
-    ```ts
-    const existingIssue = await Issue.findOne({
-      type: req.body.type,
-      status: { $ne: 'Resolved' },
-      location: {
-        $near: {
-          $geometry: { type: "Point", coordinates: [lng, lat] },
-          $maxDistance: 10 // 10 meters threshold per PRD
-        }
-      }
-    });
-    ```
-  - **Winning Touch:** If `existingIssue` is found, increment `existingIssue.duplicateCount += 1` and return `{ success: true, deduplicated: true, data: existingIssue, message: "Spatial match within 10m! Merged with existing active issue." }`. If not found, create a new `Issue`.
-- [ ] **3.3 Dashboard & Map Feed (`GET /api/issues` & `GET /api/analytics`):**
-  - Return all issues populated with assigned worker data, plus aggregated counts (`totalIssues`, `resolvedCount`, `pendingCount`, `deduplicatedSavedCount`, and hourly/weekly bar data).
-- [ ] **3.4 Task Dispatch & Resolution (`POST /api/tasks/assign` & `PATCH /api/tasks/:id/resolve`):**
-  - `POST /api/tasks/assign`: Creates a `Task` document and updates the linked `Issue.status` to `"Assigned"`.
-  - `PATCH /api/tasks/:id/resolve`: Uses `multer` to accept the worker's camera upload, saves `resolutionProofUrl`, sets `completedAt`, and updates `Issue.status` to `"Resolved"`.
+* **🛠️ Backend (Dev A):**
+  * Build `POST /api/issues` (Hardware Ingestion Route).
+  * Implement the Mongoose `$near` deduplication logic (check for existing issues within 10 meters, increment `duplicateCount` if found).
+* **🎨 Frontend (Dev B):**
+  * Set up React-Leaflet in `GisMap.jsx`.
+  * Create custom HTML Tailwind markers (`L.divIcon`): Red for Pending, Orange for Assigned, Green for Resolved.
+  * Render markers on the map using `dummyData.json`.
 
----
+### 🕔 Hour 5: Task Dispatch Backend vs. Map Interactivity
+*Goal: Enable the workflow of assigning issues to workers.*
 
-### 🕓 Hour 4: Bento Design System & Dual-Theme Engine (`DESIGN.md`)
-*Goal: Make the UI look like a $10M SaaS product before writing a single page feature.*
+* **🛠️ Backend (Dev A):**
+  * Build `POST /api/tasks/assign` (Links Issue to a Worker, updates status to Assigned).
+* **🎨 Frontend (Dev B):**
+  * Build the Interactive Issue Details Drawer (slides out when a map pin is clicked).
+  * Build the Task Dispatch Modal inside the drawer to allow an Officer to assign a worker.
 
-- [ ] **4.1 CSS Tokens (`/src/index.css`):**
-  - Paste the exact `:root` (Light) and `.dark` (Dark) CSS variables from Section 3 of `DESIGN.md` (`--bg`, `--surface`, `--surface-muted`, `--accent`, `--success`, `--warning`, `--danger`, `--shadow`, `--radius-card: 24px`).
-  - Import Google Font **Inter** (`400, 500, 600`) and apply `font-variant-numeric: tabular-nums` to metric classes.
-- [ ] **4.2 Tailwind Configuration (`tailwind.config.js`):**
-  - Configure `darkMode: "class"` and map all custom colors (`bg`, `surface`, `content`, `accent`, `inverse`, `success`, `warning`, `danger`), `borderRadius: { card: "24px", inner: "16px" }`, and `boxShadow: { card: "var(--shadow)" }`.
-- [ ] **4.3 Flash-Free Theme Hook (`/src/hooks/useTheme.js`):**
-  - Add the inline `<script>` to `index.html` `<head>` and implement `useTheme.js` (supporting Light, Dark, System) with the rotating 44px Sun/Moon icon button.
-- [ ] **4.4 Core Bento Primitives (`/src/components/ui/`):**
-  - `Card.jsx`: `<section className="bg-surface rounded-card shadow-card p-6 transition-all">`.
-  - `Badge.jsx`: Pill-shaped (`rounded-full px-2.5 py-1 text-xs font-medium`) supporting `success`, `warning`, `danger`, and `delta` variants.
-  - `MetricBlock.jsx`: Oversized `56px` display number (`tracking-tight font-medium`), muted `/total` suffix, `13px` muted label, and floating top-right delta badge.
-  - `Button.jsx`: Primary CTA pill (`bg-inverse text-inverse-text h-11 px-6 rounded-full`) and AI Insight glowing accent pill.
+### 🕕 Hour 6: The Great Integration
+*Goal: Connect the React frontend to the Node backend.*
 
----
+* **🤝 Both:** 
+  * Frontend swaps `axios.get(dummyData)` for `axios.get('http://localhost:5000/api/issues')`.
+  * Test the `GET` feed, test the Map rendering from real Atlas data, and test the `POST /api/tasks/assign` flow. Fix CORS/Payload bugs.
 
-### 🕔 Hour 5: App Shell & 12-Column Bento Analytics Dashboard (`DESIGN.md` + `PRD.md`)
-*Goal: Build the sticky pill navigation and the executive city-health Bento dashboard.*
+### 🕖 Hour 7: Worker Photo Uploads (Backend + Frontend)
+*Goal: The closed-loop verification system.*
 
-- [ ] **5.1 Sticky Top Nav (`/src/components/layout/TopNav.jsx`):**
-  - Follow `DESIGN.md` Section 6 & 7.1 strictly: **No sidebar.**
-  - Left: Logo pill (`UrbanVision` + truck radar icon).
-  - Center: Pill-nav switching smoothly between `Overview (Bento)`, `Live GIS Map`, `Worker App`, and `Edge AI Simulator`.
-  - Right: Search pill (`⌘K`), Theme Toggle button (`44px` circle), and active Persona Avatar pill.
-- [ ] **5.2 Bento Grid Layout (`/src/pages/Dashboard.jsx`):**
-  - Implement the 12-column CSS grid (`max-w-[1440px] mx-auto p-6 gap-5`):
-  - **Cols 1–8 (Hero Card): Municipal Detection & Resolution Overview:**
-    - Oversized metrics (`Total Active Issues`, `Spatial Duplicates Prevented`, `Avg Resolution Time`).
-    - **Recharts Rounded-Pill Bar Chart:** Weekly issue detection vs. resolution (`radius={999}`, `width={22}`, `fill="var(--accent)"` and `fill="var(--surface-muted)"` so colors switch dynamically with Dark Mode) + dashed average line + `"✨ Get AI City Insight"` button (triggers a smart modal summarizing hotspot wards).
-  - **Cols 9–12 (Spans 2 Rows): Fleet & Patrol Schedule Strip:**
-    - Week calendar strip with active accent pill + live garbage truck edge-unit status list (`MP-09-GV-1024 • Online • Scanning Ward 4`).
-  - **Cols 1–4: Civic Health Score Card:**
-    - Oversized `%` score (`94%`) + `"Great!"` `success-soft` pill badge + progress bar.
-  - **Cols 5–12: Recent Detections & Worker Dispatches List:**
-    - 48px circular thumbnails, issue type, GPS coordinates, assigned worker avatar, and inline status badges (`Pending` in danger-soft, `Assigned` in warning-soft, `Resolved` in success-soft).
+* **🛠️ Backend (Dev A):**
+  * Set up `multer` in `server.ts` to save images to `/backend/uploads`.
+  * Expose the static folder: `app.use('/uploads', express.static('uploads'))`.
+  * Build `PATCH /api/tasks/:id/resolve` to handle the file upload and change Issue status to Resolved.
+* **🎨 Frontend (Dev B):**
+  * Build `/pages/WorkerView.jsx` (Mobile-responsive view).
+  * Implement `<input type="file" accept="image/*" capture="environment" />` to trigger the device camera.
 
----
+### 🕗 Hour 8: The Hackathon "Wow" Factor
+*Goal: Give the judges interactive toys to play with.*
 
-### 🕕 Hour 6: Interactive GIS Map & Custom Tailwind Markers (`PRD.md` + `implementation_plan.md`)
-*Goal: Build the real-time command center map with color-coded pins and smooth fly-to animations.*
+* **🛠️ Backend (Dev A):**
+  * Ensure the `$near` response returns a specific flag (`{ deduplicated: true }`) so the frontend can trigger a toast notification.
+* **🎨 Frontend (Dev B):**
+  * Build the `EdgeSimulatorModal.jsx` (accessible from Top Nav).
+  * Add the two live demo buttons: "Broadcast New Detection" and "Simulate 2nd Truck (Trigger $near)".
+  * Wire the camera upload form to hit the real Multer endpoint.
 
-- [ ] **6.1 Leaflet Integration (`/src/pages/GisMap.jsx`):**
-  - Wrap the map inside a large `rounded-card shadow-card overflow-hidden` Bento container with floating pill filters at the top (`All`, `Potholes`, `Garbage`, `Drains`, `Pending Only`).
-  - Use Dark/Light adaptive map tiles (or standard OpenStreetMap with clean CSS dark filter in Dark Mode so the map matches `--bg`).
-- [ ] **6.2 Custom HTML Status Markers:**
-  - Use `L.divIcon` with Tailwind classes to render glowing, pulsing pins:
-    - 🔴 **Red (`#EF5B5B`):** `Pending` Pothole / High-Severity Issue
-    - 🟠 **Orange (`#F5B83D`):** `Assigned` / Garbage Issue
-    - 🟢 **Green (`#22C58B`):** `Resolved` Issue (Verified)
-- [ ] **6.3 Interactive Issue Details Drawer:**
-  - Clicking any marker slides open a floating Bento side-card over the map showing:
-    - Snapshot captured by the Garbage Truck Edge AI.
-    - Exact GeoJSON coordinates (`[lng, lat]`), severity badge, and `Duplicate Detections Merged: X` badge.
-    - If `Resolved`, displays a side-by-side **Before (Edge AI) vs. After (Worker Verification)** photo comparison.
+### 🕘 Hour 9: Polish & Edge Cases
+*Goal: Make it unbreakable for a 3-minute demo.*
+
+* **🛠️ Backend (Dev A):**
+  * Add global error handling (no app crashes if the frontend sends bad JSON).
+  * Refine the seed script so the demo data is perfectly tailored to the pitch.
+* **🎨 Frontend (Dev B):**
+  * Fix any Dark/Light mode contrast issues.
+  * Add subtle entry animations (`animate-in fade-in`) to the Bento cards.
+  * Ensure the map automatically flies (`map.flyTo`) to newly created simulated pins.
+
+### 🕙 Hour 10: Pitch Rehearsal & E2E Testing
+*Goal: Rehearse the live demo choreography.*
+
+* **🤝 Both:** 
+  * Run the Seed script to wipe the DB clean.
+  * Walk through the exact 3-minute pitch:
+    1. Show Dashboard (Light/Dark mode).
+    2. Open Map -> Trigger Simulator -> Show new pin.
+    3. Trigger Simulator again -> Show UI Toast proving `$near` deduplication worked.
+    4. Click Map Pin -> Assign to Worker.
+    5. Switch to Mobile View -> Snap Photo -> Mark Resolved.
+    6. Switch back to Map -> Show Green Pin with Before/After photos.
 
 ---
 
-### 🕖 Hour 7: Officer Task Assignment Workflow (`PRD.md`)
-*Goal: Connect the GIS Map to the field workers with a 2-click dispatch loop.*
+## 📁 Repository Structure (For 2 Devs)
 
-- [ ] **7.1 Task Dispatch Modal (`/src/components/widgets/AssignTaskModal.jsx`):**
-  - Triggered from the Map's Issue Details Drawer when an issue is `Pending`.
-  - Officer selects a Field Worker from a dropdown (showing current workload count) and chooses a Priority pill (`High`, `Medium`, `Low`).
-- [ ] **7.2 Real-Time State Sync:**
-  - Submitting calls `POST /api/tasks/assign`.
-  - Immediately updates the pin color on the map and switches the issue badge from `Pending` to `Assigned` without page reload.
-
----
-
-### 🕗 Hour 8: Mobile-Responsive Worker Interface & Camera Loop (`implementation_plan.md`)
-*Goal: Build the `/worker` view so judges can take a live photo on their phone or webcam to resolve an issue on the big screen.*
-
-- [ ] **8.1 Mobile-First Bento Feed (`/src/pages/WorkerView.jsx`):**
-  - Constrain container (`max-w-md mx-auto`) when viewed on desktop, or open directly on a mobile phone via local network IP.
-  - Displays assigned tasks sorted by priority (`High` first) with a `"Navigate in Maps"` pill button (`https://www.google.com/maps?q=lat,lng`).
-- [ ] **8.2 Live Camera & Photo Upload Verification:**
-  - Add an `<input type="file" accept="image/*" capture="environment" />` styled as a prominent Primary CTA pill (`"📸 Capture Resolution Proof"`).
-  - Also include a `"Use Instant Demo Proof Photo"` fallback button in case the presentation laptop webcam is busy.
-  - Submitting hits `PATCH /api/tasks/:id/resolve`, attaches current timestamp + GPS verification badge, and flips the issue on the central map to **Green (`Resolved`)**!
-
----
-
-### 🕘 Hour 9: The "Hackathon Winner" Secret Weapon — Live Edge AI Truck Simulator
-*Goal: Judges love seeing the hardware-to-cloud ingestion AND spatial deduplication happen live in front of their eyes.*
-
-- [ ] **9.1 Edge AI Simulator Widget (`/src/components/widgets/EdgeSimulatorModal.jsx`):**
-  - Accessible directly from the Top Nav (`"🚛 Simulate Edge AI"` pill).
-  - Shows a simulated Garbage Truck dashcam feed with bounding boxes (`Pothole: 96% confidence`, `Garbage Pile: 91% confidence`).
-- [ ] **9.2 Two Live Demo Buttons for Judges:**
-  1. **`"📡 Broadcast New Detection"`:** Sends `POST /api/issues` with coordinates near the map center. Map immediately flies to the new red pulsing pin and increments dashboard metrics.
-  2. **`"🔁 Simulate 2nd Truck Passing Same Spot (5m away)"`:** Sends `POST /api/issues` with coordinates shifted by `0.00003` degrees (~3 meters).
-     - Backend `$near` catches it!
-     - UI pops up a celebratory toast: **`"🛡️ Spatial Deduplication Triggered ($near < 10m): Merged with Issue #402 instead of creating duplicate!"`** and increments the `duplicateCount` badge on the map pin. *This guarantees technical points from judges.*
-
----
-
-### 🕙 Hour 10: Polish, Motion, Seed Data & Pitch Rehearsal
-*Goal: Lock in animations, verify Dark/Light mode contrast, and rehearse the 3-minute winning demo.*
-
-- [ ] **10.1 Motion & Polish (`DESIGN.md` Section 9):**
-  - Add subtle entry transitions (`animate-in fade-in translate-y-2 duration-300`) to Bento cards.
-  - Verify both **Light Mode** (`#EEF0F2` canvas, `#FFFFFF` cards) and **Dark Mode** (`#0B0D12` canvas, `#14171E` cards) have zero hardcoded hex glitches.
-- [ ] **10.2 Reset & Seed Script:**
-  - Run `/api/seed` once right before judging starts so the database has clean, realistic city metrics.
-- [ ] **10.3 The 3-Minute Winning Pitch Flow:**
-  1. **0:00–0:45 (The Problem & Bento Dashboard):** Show the Light/Dark Bento Dashboard. Highlight how municipal trucks already drive every street daily. Toggle Dark Mode to flex the `DESIGN.md` token system.
-  2. **0:45–1:30 (Live Edge AI + `$near` Deduplication):** Open the GIS Map. Click `"Simulate Edge AI Detection"` → watch a new red pin appear. Click `"Simulate 2nd Truck (5m away)"` → show MongoDB `$near` blocking the duplicate in real time.
-  3. **1:30–2:15 (Officer Dispatch):** Click the red pin on the map, inspect the AI snapshot, and assign it to Field Worker "Rajesh Kumar" with `High` priority.
-  4. **2:15–3:00 (Closed-Loop Worker Resolution):** Switch to `Worker View`, snap a resolution photo, hit submit, and switch back to the GIS Map to show the pin is now **Green (Resolved)** with Before & After verification photos.
-
----
-
-## 📁 Final Target Repository Structure (Strictly Compliant with `AGENTS.md`)
-
-```text
+```
 urbanvision/
-├── backend/                  # STRICTLY TypeScript (.ts)
+├── backend/                  # Dev A Territory
 │   ├── src/
-│   │   ├── models/
-│   │   │   ├── User.ts
-│   │   │   ├── Issue.ts      # Includes 2dsphere index
-│   │   │   ├── Task.ts
-│   │   │   └── Vehicle.ts
-│   │   ├── controllers/
-│   │   │   ├── issueController.ts  # Includes $near 10m deduplication
-│   │   │   ├── taskController.ts
-│   │   │   └── seedController.ts
+│   │   ├── models/           # Mongoose schemas
+│   │   ├── controllers/      # $near logic, Multer handling
 │   │   ├── routes/
-│   │   │   └── apiRoutes.ts
-│   │   ├── types/
-│   │   │   └── index.ts
 │   │   └── server.ts
-│   ├── uploads/              # Local static storage for zero-latency demo uploads
-│   ├── package.json
-│   └── tsconfig.json
+│   └── uploads/              # Stored photos go here
 │
-└── frontend/                 # STRICTLY JavaScript/JSX (.jsx)
-    ├── index.html            # Includes flash-free theme script + Leaflet CSS
-    ├── tailwind.config.js    # Maps DESIGN.md CSS variables
-    └── src/
-        ├── index.css         # :root & .dark tokens from DESIGN.md
-        ├── hooks/
-        │   └── useTheme.js
-        ├── context/
-        │   └── AppContext.jsx
-        ├── components/
-        │   ├── layout/
-        │   │   └── TopNav.jsx
-        │   ├── ui/
-        │   │   ├── Card.jsx
-        │   │   ├── Badge.jsx
-        │   │   ├── Button.jsx
-        │   │   └── MetricBlock.jsx
-        │   ├── charts/
-        │   │   └── IssueResolutionBars.jsx
-        │   └── widgets/
-        │       ├── AssignTaskModal.jsx
-        │       └── EdgeSimulatorModal.jsx
-        └── pages/
-            ├── Dashboard.jsx # 12-Col Bento Grid
-            ├── GisMap.jsx    # React-Leaflet + Custom Tailwind Pins + Drawer
-            └── WorkerView.jsx # Mobile Camera Upload & Resolution Loop
+└── frontend/                 # Dev B Territory
+    ├── src/
+    │   ├── components/       # Bento UI, Modals
+    │   ├── pages/            # Dashboard, GisMap, WorkerView
+    │   └── hooks/            # useTheme
+    └── dummyData.json        # Use this for Hours 1-5
 ```
